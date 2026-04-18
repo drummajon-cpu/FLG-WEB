@@ -21,7 +21,11 @@ const jetbrains = JetBrains_Mono({
 });
 
 const siteUrl = "https://flgtechnics.com";
-const ogImage = `${siteUrl}/og-image.png`;
+// Use a versioned filename (not a ?v= query) so every link-unfurling cache —
+// including iMessage, which strips/normalizes query strings — treats the
+// image as brand new. Bump the `-v2` suffix each time the visual changes
+// and match it in scripts/og-image.mjs.
+const ogImage = `${siteUrl}/og-image-v2.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

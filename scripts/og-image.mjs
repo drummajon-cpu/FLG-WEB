@@ -30,27 +30,27 @@ const svg = `
     <path d="M 1160 590 L 1130 590 M 1160 590 L 1160 560"/>
   </g>
 
+  <!-- Eyebrow tagline — above the logo so it doesn't collide with FLG wordmark -->
+  <text x="80" y="112" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="22" font-weight="500" fill="#7DD3FC" letter-spacing="5">AEROSPACE · MRO · ENGINEERING</text>
+
   <!-- Tail streaks logo mark (scaled up, same orientation as nav) -->
-  <g transform="translate(80, 160)">
-    <g stroke="#7DD3FC" stroke-linecap="round" transform="translate(180 0) scale(-1 1)">
+  <g transform="translate(80, 150)">
+    <g stroke="#5ED4C3" stroke-linecap="round" transform="translate(180 0) scale(-1 1)">
       <line x1="128" y1="14" x2="172" y2="8" stroke-width="6"/>
       <line x1="94" y1="30" x2="172" y2="22" stroke-width="7.5"/>
       <line x1="56" y1="46" x2="172" y2="38" stroke-width="9"/>
       <line x1="16" y1="62" x2="172" y2="54" stroke-width="10"/>
     </g>
-    <!-- FLG Technics wordmark -->
-    <text x="0" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="68" font-weight="700" fill="#F1F5F9" letter-spacing="-2">FLG</text>
-    <text x="130" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="64" font-weight="400" fill="#94A3B8" letter-spacing="-1">Technics</text>
+    <!-- FLG Technics wordmark — heritage teal FLG, slate Technics -->
+    <text x="0" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="68" font-weight="700" fill="#5ED4C3" letter-spacing="-2">FLG</text>
+    <text x="130" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="64" font-weight="400" fill="#CBD5E1" letter-spacing="-1">Technics</text>
   </g>
 
   <!-- Main headline -->
-  <text x="80" y="360" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="80" font-weight="700" fill="#F8FAFC" letter-spacing="-2.5">One MRO for the</text>
-  <text x="80" y="450" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="80" font-weight="700" fill="#F8FAFC" letter-spacing="-2.5">
+  <text x="80" y="395" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="80" font-weight="700" fill="#F8FAFC" letter-spacing="-2.5">One MRO for the</text>
+  <text x="80" y="480" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="80" font-weight="700" fill="#F8FAFC" letter-spacing="-2.5">
     <tspan fill="#7DD3FC">flight‑critical</tspan> systems.
   </text>
-
-  <!-- Tagline / eyebrow -->
-  <text x="80" y="270" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="22" font-weight="500" fill="#7DD3FC" letter-spacing="5">AEROSPACE · MRO · ENGINEERING</text>
 
   <!-- Bottom strip: certs -->
   <line x1="80" y1="530" x2="1120" y2="530" stroke="rgba(125,211,252,0.25)" stroke-width="1"/>
@@ -59,6 +59,18 @@ const svg = `
 </svg>
 `;
 
-const out = path.resolve("public/og-image.png");
-await sharp(Buffer.from(svg)).png({ quality: 92 }).toFile(out);
-console.log("wrote", out);
+// Write both filenames:
+//   • og-image-v2.png is what app/layout.tsx references — new filename forces
+//     fresh link previews everywhere that keys cache on the og:image URL
+//     (Slack, Twitter, LinkedIn, WhatsApp, …).
+//   • og-image.png is kept in sync so already-cached unfurls that still point
+//     at the old URL (notably iMessage, which can pin previews for weeks) at
+//     least resolve to the updated artwork when they do re-fetch.
+// Bump the `-v{n}` suffix in this file AND app/layout.tsx whenever the visual
+// changes so the fresh filename propagates to all unfurlers.
+const buffer = await sharp(Buffer.from(svg)).png({ quality: 92 }).toBuffer();
+for (const name of ["og-image-v2.png", "og-image.png"]) {
+  const out = path.resolve("public", name);
+  await sharp(buffer).toFile(out);
+  console.log("wrote", out);
+}
