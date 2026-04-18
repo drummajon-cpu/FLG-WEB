@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Radar,
   ClipboardCheck,
@@ -13,8 +12,6 @@ import {
   Search,
   Camera,
   ArrowUpRight,
-  X,
-  Maximize2,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import { SectionHeader } from "./Capabilities";
@@ -145,9 +142,9 @@ export default function Systems() {
               </div>
             </div>
 
-            {/* Portal mockup — click to expand */}
+            {/* Portal mockup */}
             <div className="lg:col-span-3">
-              <PortalShowcase />
+              <PortalMockup />
             </div>
           </div>
         </motion.div>
@@ -209,80 +206,7 @@ const portalOrders: PortalOrder[] = [
   { id: "WO‑260891", part: "Rudder", stage: "Final Assembly", pct: 80 },
 ];
 
-function PortalShowcase() {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [open]);
-
-  return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Expand portal preview"
-        className="group block w-full text-left press cursor-zoom-in"
-      >
-        <div className="relative">
-          <PortalMockup size="preview" />
-          {/* Expand affordance */}
-          <div className="pointer-events-none absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-md bg-ink-950/70 border border-white/10 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-200 ease-out">
-            <Maximize2 className="w-3 h-3 text-slate-300" />
-            <span className="font-mono text-[10px] tracking-wider uppercase text-slate-300">
-              Expand
-            </span>
-          </div>
-        </div>
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: EASE }}
-            className="fixed inset-0 z-[80] flex items-center justify-center p-4 md:p-8 bg-ink-950/80 backdrop-blur-md"
-            onClick={() => setOpen(false)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.25, ease: EASE }}
-              className="relative w-full max-w-5xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <PortalMockup size="modal" />
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close"
-                className="press absolute -top-3 -right-3 w-9 h-9 rounded-full bg-ink-900 border border-white/10 flex items-center justify-center text-slate-300 hover:text-white hover:bg-ink-800 shadow-lg"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-}
-
-function PortalMockup({ size = "preview" }: { size?: "preview" | "modal" }) {
-  const isModal = size === "modal";
+function PortalMockup() {
   return (
     <div className="relative rounded-2xl border border-white/10 bg-ink-950/90 overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
       {/* Browser chrome */}
@@ -299,62 +223,61 @@ function PortalMockup({ size = "preview" }: { size?: "preview" | "modal" }) {
       </div>
 
       {/* Portal content */}
-      <div
-        className={`grid grid-cols-5 gap-3 ${
-          isModal ? "p-6 md:p-7 min-h-[520px]" : "p-4 md:p-5 min-h-[340px]"
-        }`}
-      >
-        {/* Sidebar */}
-        <div className="col-span-2 space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-3 p-4 md:p-5 md:min-h-[340px]">
+        {/* Orders — horizontal snap-scroll on mobile, vertical column on md+ */}
+        <div className="md:col-span-2">
           <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mb-2">
             Active orders
           </div>
-          {portalOrders.map((r) => (
-            <div
-              key={r.id}
-              className={`rounded-lg border p-3 ${
-                r.active
-                  ? "border-accent/40 bg-accent/5"
-                  : "border-white/5 bg-white/[0.02]"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="font-mono text-[10px] tracking-wider text-slate-500">{r.id}</div>
-                {r.active && (
-                  <span className="font-mono text-[9px] tracking-wider uppercase text-accent px-1.5 py-0.5 rounded bg-accent/10">
-                    Live
-                  </span>
-                )}
+          {/* Negative margin + padding lets the carousel bleed to the card edge on mobile */}
+          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none -mx-4 md:mx-0 px-4 md:px-0 pb-1 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {portalOrders.map((r) => (
+              <div
+                key={r.id}
+                className={`shrink-0 w-[220px] md:w-auto snap-start rounded-lg border p-3 ${
+                  r.active
+                    ? "border-accent/40 bg-accent/5"
+                    : "border-white/5 bg-white/[0.02]"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="font-mono text-[10px] tracking-wider text-slate-500">{r.id}</div>
+                  {r.active && (
+                    <span className="font-mono text-[9px] tracking-wider uppercase text-accent px-1.5 py-0.5 rounded bg-accent/10">
+                      Live
+                    </span>
+                  )}
+                </div>
+                <div className="mt-1.5 font-medium text-slate-200 text-[13px]">
+                  {r.part}
+                </div>
+                <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">
+                  <div
+                    className={`h-full ${r.active ? "bg-accent" : "bg-accent/50"}`}
+                    style={{ width: `${r.pct}%` }}
+                  />
+                </div>
+                <div className="mt-1.5 flex items-center justify-between text-[10px]">
+                  <span className="text-slate-500">{r.stage}</span>
+                  <span className="text-slate-400">{r.pct}%</span>
+                </div>
               </div>
-              <div className={`mt-1.5 font-medium text-slate-200 ${isModal ? "text-[14px]" : "text-[13px]"}`}>
-                {r.part}
-              </div>
-              <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">
-                <div
-                  className={`h-full ${r.active ? "bg-accent" : "bg-accent/50"}`}
-                  style={{ width: `${r.pct}%` }}
-                />
-              </div>
-              <div className="mt-1.5 flex items-center justify-between text-[10px]">
-                <span className="text-slate-500">{r.stage}</span>
-                <span className="text-slate-400">{r.pct}%</span>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
         {/* Detail pane */}
-        <div className="col-span-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 flex flex-col">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-mono text-[10px] tracking-wider text-slate-500">
+        <div className="md:col-span-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 flex flex-col">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-mono text-[10px] tracking-wider text-slate-500 truncate">
                 WO‑260834 · A330 Muffler Bracket · PN H2614‑9210
               </div>
-              <div className={`mt-1 font-medium text-slate-200 ${isModal ? "text-[14px]" : "text-[13px]"}`}>
+              <div className="mt-1 font-medium text-slate-200 text-[13px]">
                 Welding — pass 3 of 4 in progress
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
@@ -369,12 +292,6 @@ function PortalMockup({ size = "preview" }: { size?: "preview" | "modal" }) {
             <ActivityRow icon="✓" color="slate" label="Weld pass 2/4 complete · visual PASS" time="18m ago" />
             <ActivityRow icon="✎" color="slate" label="DER 8110‑3 signed — repair approved" time="1h ago" />
             <ActivityRow icon="▸" color="slate" label="CNC fixture machined from scan CAD" time="3h ago" />
-            {isModal && (
-              <>
-                <ActivityRow icon="✓" color="slate" label="3D scan match: 99.7% · reverse‑engineered" time="6h ago" />
-                <ActivityRow icon="↓" color="slate" label="Teardown: OEM bracket obsolete, no stock" time="Mon 9:02 AM" />
-              </>
-            )}
           </div>
 
           {/* Chat stub */}
@@ -386,7 +303,7 @@ function PortalMockup({ size = "preview" }: { size?: "preview" | "modal" }) {
               <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center font-mono text-[10px] text-accent shrink-0">
                 J.R.
               </div>
-              <div className="rounded-lg bg-white/[0.03] border border-white/5 px-2.5 py-1.5 text-[11px] text-slate-300 max-w-[340px]">
+              <div className="min-w-0 rounded-lg bg-white/[0.03] border border-white/5 px-2.5 py-1.5 text-[11px] text-slate-300">
                 OEM bracket is discontinued — we reverse‑engineered from the scan, DER approved the 8110‑3 this morning, welding pass 3 starting now. On track for Thursday release.
               </div>
             </div>
