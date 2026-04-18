@@ -4,13 +4,13 @@ import { motion } from "framer-motion";
 import {
   PlaneTakeoff,
   DoorOpen,
-  Cylinder,
-  Frame,
+  Disc,
+  AppWindow,
   Armchair,
   Package,
   Fan,
   Compass,
-  Boxes,
+  Layers,
   Warehouse,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -41,7 +41,7 @@ const capabilities: Capability[] = [
   },
   {
     title: "Nacelles & Pylons",
-    icon: Cylinder,
+    icon: Disc,
     items: ["Cowlings", "Plenums", "Air intakes", "Ram airs"],
   },
   {
@@ -51,7 +51,7 @@ const capabilities: Capability[] = [
   },
   {
     title: "Fuselage Components",
-    icon: Frame,
+    icon: AppWindow,
     items: ["Fuselage panels", "Windows", "Switches"],
   },
   {
@@ -61,7 +61,7 @@ const capabilities: Capability[] = [
   },
   {
     title: "Spare Parts",
-    icon: Boxes,
+    icon: Layers,
     items: ["Commercial & regional jets", "Sourcing & logistics"],
   },
   {
