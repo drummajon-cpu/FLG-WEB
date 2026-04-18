@@ -96,7 +96,7 @@ export default function Hero() {
         >
           {[
             { target: 28, suffix: "+", label: "Years in service" },
-            { target: 50, suffix: "k", label: "Sq ft MRO facility" },
+            { target: 75, suffix: "k", label: "Sq ft MRO facility" },
             { text: "24/7", label: "AOG response" },
             { target: 4, suffix: "", label: "Aviation approvals" },
           ].map((s, i) => (

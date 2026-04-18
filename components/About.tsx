@@ -10,7 +10,7 @@ const EASE = [0.23, 1, 0.32, 1] as const;
 const pillars = [
   { icon: Calendar, label: "Established", value: "1998" },
   { icon: MapPin, label: "Headquarters", value: "Miramar, FL" },
-  { icon: Wrench, label: "Facility", value: "50,000 sq ft" },
+  { icon: Wrench, label: "Facility", value: "75,000 sq ft" },
   { icon: Users, label: "Second site", value: "Sebring, FL — Teardown" },
 ];
 
@@ -47,10 +47,10 @@ export default function About() {
                 traceability, and real answers when something unusual comes across our dock.
               </p>
               <p>
-                Our Sebring, FL site closes the loop for end‑of‑life fleets — "plane‑in‑a‑box"
-                teardowns where whole aircraft become serviced, traceable parts ready for the
-                aftermarket. We also rent hangar storage to operators and teardown companies that
-                need climate‑controlled, airside space.
+                Our Sebring, FL site closes the loop for end‑of‑life fleets — &quot;plane‑in‑a‑box&quot;
+                teardowns where we remove and service the components, returning traceable parts
+                to the aftermarket ready to go. We also rent hangar storage to operators and
+                teardown companies that need climate‑controlled, airside space.
               </p>
               <p>
                 We treat communication as the product as much as the repair. You&apos;ll always know
@@ -157,7 +157,7 @@ function FloridaMap() {
 
       {/* Miramar pin — SE FL between Ft. Lauderdale and Miami */}
       <Pin left="91%" top="63%" size={12} delay={1}>
-        <Callout left="56%" top="72%" title="MIRAMAR · HQ" body="Part 145 · MRO" meta="50,000 sq ft" />
+        <Callout left="56%" top="72%" title="MIRAMAR · HQ" body="Part 145 · MRO" meta="75,000 sq ft" />
       </Pin>
 
       {/* Distance / time badge — bottom-right corner, out of the way */}
