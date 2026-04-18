@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm view *)",
+      "Bash(npm search *)",
+      "WebSearch",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:emilkowal.ski)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --eslint --turbopack --yes)",
+      "Bash(npm init *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //F //PID 24748)",
+      "WebFetch(domain:ezrp.aero)",
+      "Bash(magick --version)",
+      "Bash(sips --version)",
+      "Bash(node scripts/rotate-photos.mjs)",
+      "WebFetch(domain:emcaerospace.com)",
+      "WebFetch(domain:www.emcaerospace.com)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code} in %{time_total}s\\\\n\" http://localhost:3100/)"
+    ]
+  }
+}
