@@ -59,6 +59,9 @@ const svg = `
 </svg>
 `;
 
-const out = path.resolve("public/og-image.png");
+// Versioned filename so platforms that cache by URL (iMessage, Slack, Twitter,
+// WhatsApp, LinkedIn, …) treat the image as brand new. Bump the suffix any
+// time the visual changes and update the reference in app/layout.tsx.
+const out = path.resolve("public/og-image-v2.png");
 await sharp(Buffer.from(svg)).png({ quality: 92 }).toFile(out);
 console.log("wrote", out);
