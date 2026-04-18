@@ -21,7 +21,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 const siteUrl = "https://flgtechnics.com";
-const ogImage = `${siteUrl}/og-image.png`;
+// Bump the `v` param whenever `public/og-image.png` changes so link-unfurling
+// caches (iMessage, Slack, Twitter, etc.) re-fetch the fresh image.
+const ogImage = `${siteUrl}/og-image.png?v=2`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

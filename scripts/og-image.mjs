@@ -32,15 +32,15 @@ const svg = `
 
   <!-- Tail streaks logo mark (scaled up, same orientation as nav) -->
   <g transform="translate(80, 160)">
-    <g stroke="#7DD3FC" stroke-linecap="round" transform="translate(180 0) scale(-1 1)">
+    <g stroke="#5ED4C3" stroke-linecap="round" transform="translate(180 0) scale(-1 1)">
       <line x1="128" y1="14" x2="172" y2="8" stroke-width="6"/>
       <line x1="94" y1="30" x2="172" y2="22" stroke-width="7.5"/>
       <line x1="56" y1="46" x2="172" y2="38" stroke-width="9"/>
       <line x1="16" y1="62" x2="172" y2="54" stroke-width="10"/>
     </g>
-    <!-- FLG Technics wordmark -->
-    <text x="0" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="68" font-weight="700" fill="#F1F5F9" letter-spacing="-2">FLG</text>
-    <text x="130" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="64" font-weight="400" fill="#94A3B8" letter-spacing="-1">Technics</text>
+    <!-- FLG Technics wordmark — heritage teal FLG, slate Technics -->
+    <text x="0" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="68" font-weight="700" fill="#5ED4C3" letter-spacing="-2">FLG</text>
+    <text x="130" y="140" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif" font-size="64" font-weight="400" fill="#CBD5E1" letter-spacing="-1">Technics</text>
   </g>
 
   <!-- Main headline -->
