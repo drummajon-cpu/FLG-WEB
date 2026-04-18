@@ -38,7 +38,7 @@ const items = [
   },
   {
     q: "Where are you located? Do you accept international work?",
-    a: "Headquartered in Miramar, FL (50,000 sq ft primary facility) with a second site in Sebring, FL for teardown and end‑of‑life. We service operators worldwide under our FAA/EASA/UK CAA approvals — shipping and customs handled.",
+    a: "Headquartered in Miramar, FL (75,000 sq ft primary facility) with a second site in Sebring, FL for teardown and end‑of‑life. We service operators worldwide under our FAA/EASA/UK CAA approvals — shipping and customs handled.",
   },
 ];
 

@@ -16,7 +16,7 @@ export default function ShopFloor() {
       <div className="relative max-w-7xl mx-auto px-6">
         <SectionHeader
           eyebrow="Inside The Shop"
-          title="50,000 sq ft of structure work, all under one roof."
+          title="75,000 sq ft of structure work, all under one roof."
           description="Our Miramar, FL facility is purpose‑built for flight‑control surfaces, flaps, and engine inlets — backed by in‑house 3D scanning and a multi‑axis CNC machine shop for rapid tooling and PMA production."
         />
 
@@ -90,7 +90,7 @@ function FacilityCard() {
           </div>
         </div>
         <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-400 px-2.5 py-1 rounded-full border border-white/10 bg-ink-950/50 backdrop-blur-sm">
-          50,000 sq ft · FAA 145
+          75,000 sq ft · FAA 145
         </div>
       </figcaption>
     </motion.figure>
