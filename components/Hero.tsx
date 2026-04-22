@@ -47,7 +47,7 @@ export default function Hero() {
           transition={{ duration: 0.7, delay: 0.08, ease: EASE }}
           className="mt-6 font-display font-semibold tracking-[-0.03em] text-[clamp(2.6rem,7vw,5.75rem)] leading-[0.95] text-slate-50 text-glow"
         >
-          One MRO for the
+          One MRO for your
           <br />
           <span className="text-accent">flight‑critical</span> systems that keep you flying.
         </motion.h1>
