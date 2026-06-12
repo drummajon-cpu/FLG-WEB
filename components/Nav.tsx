@@ -38,7 +38,7 @@ export default function Nav() {
             : "bg-transparent"
         }`}
       >
-        <nav className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <nav className="max-w-7xl mx-auto px-6 h-[88px] flex items-center justify-between">
           <a href="#top" className="group transition-transform duration-200 ease-out">
             <LogoLockup tagline={false} />
           </a>
@@ -89,7 +89,7 @@ export default function Nav() {
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[60] bg-ink-950/95 backdrop-blur-lg md:hidden"
           >
-            <div className="flex items-center justify-between h-20 px-6 border-b border-white/5">
+            <div className="flex items-center justify-between h-[88px] px-6 border-b border-white/5">
               <LogoLockup tagline={false} />
               <button onClick={() => setOpen(false)} aria-label="Close menu" className="press p-2 rounded-md border border-white/10">
                 <X className="w-5 h-5 text-slate-300" />
