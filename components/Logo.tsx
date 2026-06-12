@@ -94,7 +94,7 @@ export function LogoLockup({
         width={639}
         height={297}
         priority
-        className="h-12 w-auto"
+        className="h-14 w-auto"
       />
       {tagline && (
         <span className="font-mono text-[9px] tracking-[0.22em] text-slate-500 uppercase mt-1.5 ml-1">
