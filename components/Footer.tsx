@@ -11,11 +11,11 @@ export default function Footer() {
           <div className="md:col-span-2">
             <div className="flex flex-col items-start leading-none">
               <Image
-                src="/images/flg-logo.png"
-                alt="FLG Technics"
-                width={1092}
-                height={255}
-                className="h-12 w-auto"
+                src="/images/flg-logo-one-mro.png"
+                alt="FLG Technics — One MRO"
+                width={639}
+                height={297}
+                className="h-16 w-auto"
               />
               <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-slate-500 mt-3 ml-1">
                 Aerospace · MRO · Engineering

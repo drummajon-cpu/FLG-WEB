@@ -87,17 +87,17 @@ export function LogoLockup({
 }) {
   return (
     <div className={clsx("flex flex-col items-start leading-none", className)}>
-      {/* Official FLG Technics logo — Mom's 1999 design */}
+      {/* Official FLG Technics "ONE MRO" logo — 2026 refresh of Mom's 1999 design */}
       <Image
-        src="/images/flg-logo.png"
-        alt="FLG Technics"
-        width={1092}
-        height={255}
+        src="/images/flg-logo-one-mro.png"
+        alt="FLG Technics — One MRO"
+        width={639}
+        height={297}
         priority
-        className="h-9 w-auto"
+        className="h-12 w-auto"
       />
       {tagline && (
-        <span className="font-mono text-[9px] tracking-[0.22em] text-slate-500 uppercase mt-2 ml-1">
+        <span className="font-mono text-[9px] tracking-[0.22em] text-slate-500 uppercase mt-1.5 ml-1">
           Aerospace · MRO
         </span>
       )}
