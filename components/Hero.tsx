@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Flame } from "lucide-react";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
@@ -30,15 +30,23 @@ export default function Hero() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: EASE }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-sm"
+          className="flex flex-wrap items-center gap-2"
         >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-          </span>
-          <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-slate-300">
-            FAA Part 145 · EASA · UK CAA
-          </span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+            </span>
+            <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-slate-300">
+              FAA Part 145 · EASA · UK CAA
+            </span>
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-teal/30 bg-teal/[0.07] backdrop-blur-sm">
+            <Flame className="w-3.5 h-3.5 text-teal-bright" />
+            <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-teal-bright">
+              AWS D17.1 Certified Welding
+            </span>
+          </div>
         </motion.div>
 
         <motion.h1
