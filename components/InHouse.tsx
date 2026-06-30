@@ -52,7 +52,7 @@ export default function InHouse() {
       <div className="relative max-w-7xl mx-auto px-6">
         <SectionHeader
           eyebrow="Engineering Authority"
-          title="Design it, approve it, build it — under one roof."
+          title="Design it, approve it, build it — without ever shipping it out."
           description="Most MROs ship engineering out. We don't. From DER‑signed repair approvals to PMA development to aerospace‑certified welding, every decision lives inside our walls."
         />
 
