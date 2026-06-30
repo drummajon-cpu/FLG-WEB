@@ -12,6 +12,37 @@
   }
 }
 
+/* Live portal mockup: a shimmer sweep across the active progress bar and a
+   gentle "just happened" pulse on the newest activity row. */
+@keyframes barShimmer {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(420%); }
+}
+.animate-bar-shimmer {
+  animation: barShimmer 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes liveRow {
+  0%, 100% {
+    background-color: rgba(125, 211, 252, 0.05);
+    border-color: rgba(125, 211, 252, 0.18);
+  }
+  50% {
+    background-color: rgba(125, 211, 252, 0.11);
+    border-color: rgba(125, 211, 252, 0.32);
+  }
+}
+.animate-live-row {
+  animation: liveRow 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bar-shimmer,
+  .animate-live-row {
+    animation: none;
+  }
+}
+
 :root {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui;

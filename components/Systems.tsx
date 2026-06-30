@@ -253,10 +253,20 @@ function PortalMockup() {
                   {r.part}
                 </div>
                 <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">
-                  <div
-                    className={`h-full ${r.active ? "bg-accent" : "bg-accent/50"}`}
-                    style={{ width: `${r.pct}%` }}
-                  />
+                  <motion.div
+                    className={`relative h-full overflow-hidden ${r.active ? "bg-accent" : "bg-accent/50"}`}
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${r.pct}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.1, delay: 0.2, ease: EASE }}
+                  >
+                    {r.active && (
+                      <span
+                        aria-hidden
+                        className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-bar-shimmer"
+                      />
+                    )}
+                  </motion.div>
                 </div>
                 <div className="mt-1.5 flex items-center justify-between text-[10px]">
                   <span className="text-slate-500">{r.stage}</span>
@@ -289,7 +299,7 @@ function PortalMockup() {
 
           {/* Activity feed — reverse-engineered muffler bracket story */}
           <div className="mt-3 space-y-2 text-[11px]">
-            <ActivityRow icon="●" color="accent" label="Welder M.O. clocked in (AWS D17.1)" time="3m ago" />
+            <ActivityRow icon="●" color="accent" label="Welder M.O. clocked in (AWS D17.1)" time="live" live />
             <ActivityRow icon="✓" color="slate" label="Weld pass 2/4 complete · visual PASS" time="18m ago" />
             <ActivityRow icon="✎" color="slate" label="DER 8110‑3 signed — repair approved" time="1h ago" />
             <ActivityRow icon="▸" color="slate" label="CNC fixture machined from scan CAD" time="3h ago" />
@@ -320,21 +330,36 @@ function ActivityRow({
   color,
   label,
   time,
+  live,
 }: {
   icon: string;
   color: "accent" | "slate";
   label: string;
   time: string;
+  live?: boolean;
 }) {
   return (
-    <div className="flex items-center justify-between px-2 py-1.5 rounded border border-white/5 bg-white/[0.02]">
-      <div className="flex items-center gap-2">
-        <span className={`font-mono text-[10px] ${color === "accent" ? "text-accent" : "text-slate-500"}`}>
-          {icon}
-        </span>
-        <span className="text-slate-300">{label}</span>
+    <div
+      className={`flex items-center justify-between px-2 py-1.5 rounded border ${
+        live ? "animate-live-row" : "border-white/5 bg-white/[0.02]"
+      }`}
+    >
+      <div className="flex items-center gap-2 min-w-0">
+        {live ? (
+          <span className="relative flex h-1.5 w-1.5 shrink-0">
+            <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+          </span>
+        ) : (
+          <span className={`font-mono text-[10px] ${color === "accent" ? "text-accent" : "text-slate-500"}`}>
+            {icon}
+          </span>
+        )}
+        <span className="text-slate-300 truncate">{label}</span>
       </div>
-      <span className="font-mono text-[9px] text-slate-500">{time}</span>
+      <span className={`font-mono text-[9px] shrink-0 ${live ? "text-accent" : "text-slate-500"}`}>
+        {time}
+      </span>
     </div>
   );
 }
