@@ -58,9 +58,9 @@ export default function Systems() {
 
       <div className="relative max-w-7xl mx-auto px-6">
         <SectionHeader
-          eyebrow="Built‑In Intelligence"
-          title="Software built on the shop floor, not in a boardroom."
-          description="Most MROs run on spreadsheets bolted to 90s‑era ERPs. We built our own. The tools behind our floor track every part, every stage, and every sign‑off in real time — so your repair quotes come back faster and your audits are already done."
+          eyebrow="Full Visibility"
+          title="Always know exactly where your parts are."
+          description="Every unit you send us is tracked in real time — stage by stage, sign‑off by sign‑off — on a portal that's yours. The same in‑house systems that run our floor give you live status, every document, and a direct line to your account team. No more chasing status by email."
         />
 
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -94,16 +94,17 @@ export default function Systems() {
               </div>
 
               <h3 className="mt-5 font-display text-3xl md:text-[40px] font-semibold tracking-[-0.025em] text-slate-50 leading-[1.05]">
-                Your shop floor,
+                Your orders,
                 <br />
                 in your pocket.
               </h3>
 
               <p className="mt-4 text-slate-400 leading-relaxed">
-                A dedicated portal — on desktop and mobile — that puts every work
-                order, document, photo, and conversation in one place. Look up our
-                capabilities by part number. Watch the welder clock in on the unit
-                you shipped last Tuesday. Everything you need, at your fingertips.
+                A portal that's yours — on desktop and mobile — with every one of
+                your orders, documents, photos, and conversations in one place. Track
+                each unit stage by stage, watch the welder clock in on the part you
+                shipped last Tuesday, and pull any document the moment it&apos;s signed.
+                Full visibility, start to finish.
               </p>
 
               <div className="mt-5 rounded-lg border border-accent/20 bg-accent/5 px-3 py-2.5">
@@ -161,7 +162,7 @@ export default function Systems() {
             The same team that repairs your components built the systems that track them.
           </div>
           <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-slate-500">
-            No vendor tickets · No integration lag
+            Real‑time · Documented · Yours to see
           </div>
         </motion.div>
       </div>
