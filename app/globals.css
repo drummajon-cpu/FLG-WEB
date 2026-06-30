@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Readability: the monospace (JetBrains Mono) is used for small uppercase
+   labels and captions. At 10–11px it renders thin/spidery on the dark
+   background, so give bare mono text medium weight. Lives in @layer base so
+   any explicit font-weight utility (font-semibold, etc.) still wins. */
+@layer base {
+  .font-mono {
+    font-weight: 500;
+  }
+}
+
 :root {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-display: "Space Grotesk", ui-sans-serif, system-ui;
