@@ -18,12 +18,12 @@ export default function Home() {
       <Nav />
       <Hero />
       <TrustedBy />
+      <Certifications />
       <Capabilities />
       <Gallery />
       <ShopFloor />
       <InHouse />
       <Systems />
-      <Certifications />
       <About />
       <FAQ />
       <Contact />
