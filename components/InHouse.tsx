@@ -94,48 +94,51 @@ function PillarCard({ pillar, index, featured }: { pillar: Pillar; index: number
   const Icon = pillar.icon;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.55, delay: Math.min(index * 0.06, 0.3), ease: EASE }}
-      className={`group relative rounded-2xl p-8 border bg-ink-900/50 hover:bg-ink-900/80 transition-colors duration-200 overflow-hidden ${
-        featured ? "border-accent/30" : "border-white/5 hover:border-white/10"
+      transition={{ duration: 0.7, delay: Math.min(index * 0.08, 0.32), ease: EASE }}
+      whileHover={{ y: -4 }}
+      className={`group relative rounded-[1.75rem] p-1.5 bg-white/[0.03] ring-1 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_26px_70px_-24px_rgba(56,189,248,0.22)] ${
+        featured ? "ring-accent/30" : "ring-white/10 hover:ring-accent/25"
       }`}
     >
-      <div className="flex items-start justify-between gap-6">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/15 to-ink-800 border border-accent/20 flex items-center justify-center shrink-0">
-          <Icon className="w-5 h-5 text-accent" />
-        </div>
-        <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mt-2">
-          {pillar.tag}
-        </span>
-      </div>
-
-      <h3 className="mt-6 font-display text-2xl font-semibold text-slate-100 tracking-tight">
-        {pillar.title}
-      </h3>
-      <p className="mt-3 text-slate-400 leading-relaxed">{pillar.description}</p>
-
-      <div className="mt-5 flex flex-wrap gap-1.5">
-        {pillar.bullets.map((b) => (
-          <span
-            key={b}
-            className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/5"
-          >
-            {b}
+      <div className="relative rounded-[1.4rem] p-8 bg-ink-900/55 overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
+        <div className="flex items-start justify-between gap-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/15 to-ink-800 border border-accent/20 flex items-center justify-center shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+            <Icon className="w-5 h-5 text-accent" />
+          </div>
+          <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mt-2">
+            {pillar.tag}
           </span>
-        ))}
-      </div>
+        </div>
 
-      {/* Edge highlight on hover */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{
-          background:
-            "radial-gradient(500px circle at 30% 0%, rgba(125,211,252,0.06), transparent 50%)",
-        }}
-      />
+        <h3 className="mt-6 font-display text-2xl font-semibold text-slate-100 tracking-tight">
+          {pillar.title}
+        </h3>
+        <p className="mt-3 text-slate-400 leading-relaxed">{pillar.description}</p>
+
+        <div className="mt-5 flex flex-wrap gap-1.5">
+          {pillar.bullets.map((b) => (
+            <span
+              key={b}
+              className="text-xs font-medium text-slate-300 px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/5"
+            >
+              {b}
+            </span>
+          ))}
+        </div>
+
+        {/* Edge highlight on hover */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{
+            background:
+              "radial-gradient(500px circle at 30% 0%, rgba(125,211,252,0.06), transparent 50%)",
+          }}
+        />
+      </div>
     </motion.div>
   );
 }

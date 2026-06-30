@@ -134,30 +134,37 @@ function ContactCard({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.5, ease: EASE }}
-      className={`press group relative rounded-2xl p-6 overflow-hidden border transition-colors duration-200 ${
-        accent
-          ? "border-accent/30 bg-gradient-to-br from-accent/10 via-ink-900/60 to-ink-900/80"
-          : "border-white/5 bg-ink-900/50 hover:bg-ink-900/80 hover:border-white/10"
+      transition={{ duration: 0.7, ease: EASE }}
+      whileHover={{ y: -4 }}
+      className={`press group relative rounded-[1.5rem] p-1.5 overflow-hidden ring-1 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_26px_70px_-24px_rgba(56,189,248,0.22)] ${
+        accent ? "ring-accent/30" : "ring-white/10 hover:ring-accent/25"
       }`}
     >
-      <div className="flex items-start justify-between">
-        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent/15 to-ink-800 border border-accent/20 flex items-center justify-center">
-          <Icon className="w-5 h-5 text-accent" />
+      <div
+        className={`relative rounded-[1.125rem] p-6 overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)] ${
+          accent
+            ? "bg-gradient-to-br from-accent/10 via-ink-900/60 to-ink-900/80"
+            : "bg-ink-900/50"
+        }`}
+      >
+        <div className="flex items-start justify-between">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent/15 to-ink-800 border border-accent/20 flex items-center justify-center transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+            <Icon className="w-5 h-5 text-accent" />
+          </div>
+          <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-accent transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </div>
-        <ArrowUpRight className="w-4 h-4 text-slate-500 group-hover:text-accent transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-      </div>
-      <div className="mt-6">
-        <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-slate-500">
-          {label}
+        <div className="mt-6">
+          <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-slate-500">
+            {label}
+          </div>
+          <div className="mt-2 font-display text-xl font-semibold text-slate-100 tracking-tight">
+            {primary}
+          </div>
+          <div className="mt-1 text-sm text-slate-400">{secondary}</div>
         </div>
-        <div className="mt-2 font-display text-xl font-semibold text-slate-100 tracking-tight">
-          {primary}
-        </div>
-        <div className="mt-1 text-sm text-slate-400">{secondary}</div>
       </div>
     </motion.a>
   );
