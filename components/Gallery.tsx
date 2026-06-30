@@ -90,24 +90,24 @@ export default function Gallery() {
 
         {/* Feature card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease: EASE }}
+          transition={{ duration: 0.9, ease: EASE }}
           className="mt-16"
         >
           <BlueprintCard work={feature} feature />
         </motion.div>
 
         {/* Grid */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {rest.map((w, i) => (
             <motion.div
               key={w.src}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.55, delay: Math.min(i * 0.05, 0.25), ease: EASE }}
+              transition={{ duration: 0.8, delay: Math.min(i * 0.08, 0.4), ease: EASE }}
             >
               <BlueprintCard work={w} />
             </motion.div>
@@ -121,8 +121,20 @@ export default function Gallery() {
 function BlueprintCard({ work, feature }: { work: Work; feature?: boolean }) {
   const aspect = feature ? "aspect-[21/9]" : "aspect-[4/3]";
   return (
-    <figure className={`group relative rounded-xl border border-white/5 bg-ink-950 overflow-hidden ${feature ? "rounded-2xl" : ""}`}>
-      <div className={`relative ${aspect} overflow-hidden`}>
+    <figure className="group relative">
+      {/* Outer shell — machined tray: hairline ring, soft ambient shadow,
+          magnetic lift + accent glow on hover */}
+      <div
+        className={`relative ${
+          feature ? "rounded-[2rem] p-2" : "rounded-[1.5rem] p-1.5"
+        } bg-white/[0.03] ring-1 ring-white/10 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-1 group-hover:ring-accent/25 group-hover:shadow-[0_26px_70px_-24px_rgba(56,189,248,0.22)]`}
+      >
+        {/* Inner core — concentric radius + inset top highlight */}
+        <div
+          className={`relative ${aspect} ${
+            feature ? "rounded-[1.5rem]" : "rounded-[1.125rem]"
+          } overflow-hidden bg-ink-950 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]`}
+        >
         {/* Blueprint paper background */}
         <BlueprintBackground />
 
@@ -181,6 +193,7 @@ function BlueprintCard({ work, feature }: { work: Work; feature?: boolean }) {
               {work.material}
             </div>
           )}
+        </div>
         </div>
       </div>
     </figure>
