@@ -84,7 +84,7 @@ export default function Gallery() {
       <div className="relative max-w-7xl mx-auto px-6">
         <SectionHeader
           eyebrow="Recent Work"
-          title="The finish is the first thing the auditor sees."
+          title="The finish is the first thing QC checks."
           description="A selection of recently completed flight control surfaces, flaps, rudders, and exhaust components — stripped, repaired, inspected, and released from our South Florida facility."
         />
 
