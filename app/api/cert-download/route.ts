@@ -40,13 +40,21 @@ export async function POST(req: NextRequest) {
 
   console.log("[cert-download]", JSON.stringify(record));
 
+  // Forward the lead to EZRP (or any webhook). Set CERT_DOWNLOAD_WEBHOOK to the
+  // EZRP ingest URL (e.g. https://ezrp.aero/api/website/cert-lead) and
+  // CERT_DOWNLOAD_WEBHOOK_SECRET to a shared secret so EZRP can verify the
+  // request came from this site. Failures here never block the visitor's
+  // download — we log and move on.
   const webhook = process.env.CERT_DOWNLOAD_WEBHOOK;
   if (webhook) {
     try {
+      const headers: Record<string, string> = { "content-type": "application/json" };
+      const secret = process.env.CERT_DOWNLOAD_WEBHOOK_SECRET;
+      if (secret) headers["x-flg-webhook-secret"] = secret;
       await fetch(webhook, {
         method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(record),
+        headers,
+        body: JSON.stringify({ source: "flgtechnics.com", kind: "cert_download", ...record }),
       });
     } catch (err) {
       console.error("[cert-download] webhook failed", err);
