@@ -78,14 +78,16 @@ export default function Hero() {
         >
           <a
             href="#contact"
-            className="press group inline-flex items-center gap-2 px-5 py-3 rounded-md bg-accent hover:bg-accent-bright text-ink-950 font-medium shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_12px_40px_-10px_rgba(56,189,248,0.5)]"
+            className="press group inline-flex items-center gap-3 pl-6 pr-2 py-2.5 rounded-full bg-accent hover:bg-accent-bright text-ink-950 font-medium shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_12px_40px_-10px_rgba(56,189,248,0.5)]"
           >
             Request a Quote
-            <ArrowRight className="w-4 h-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5" />
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-ink-950/15 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
+              <ArrowRight className="w-4 h-4" />
+            </span>
           </a>
           <a
             href="#capabilities"
-            className="press inline-flex items-center gap-2 px-5 py-3 rounded-md border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-200 font-medium"
+            className="press inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-200 font-medium"
           >
             Explore Capabilities
           </a>
@@ -95,28 +97,33 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* Stats strip */}
+        {/* Stats strip — double-bezel machined tray */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4, ease: EASE }}
-          className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5 rounded-xl overflow-hidden border border-white/5"
+          className="mt-20 rounded-[1.5rem] p-1.5 bg-white/[0.03] ring-1 ring-white/10 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)]"
         >
-          {[
-            { target: 28, suffix: "+", label: "Years in service" },
-            { target: 75, suffix: "k", label: "Sq ft MRO facility" },
-            { text: "24/7", label: "AOG response" },
-            { target: 4, suffix: "", label: "Aviation approvals" },
-          ].map((s, i) => (
-            <div key={s.label} className="bg-ink-900/60 backdrop-blur-sm px-6 py-6">
-              <div className="font-display text-3xl md:text-4xl font-semibold text-slate-100 tracking-tight">
-                {"text" in s ? s.text : <Counter target={s.target!} suffix={s.suffix!} delay={i * 120} />}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5 rounded-[1.125rem] overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
+            {[
+              { target: 28, suffix: "+", label: "Years in service" },
+              { target: 75, suffix: "k", label: "Sq ft MRO facility" },
+              { text: "24/7", label: "AOG response" },
+              { target: 4, suffix: "", label: "Aviation approvals" },
+            ].map((s, i) => (
+              <div
+                key={s.label}
+                className="group/stat bg-ink-900/60 hover:bg-ink-900/90 transition-colors duration-300 backdrop-blur-sm px-6 py-6"
+              >
+                <div className="font-display text-3xl md:text-4xl font-semibold text-slate-100 tracking-tight">
+                  {"text" in s ? s.text : <Counter target={s.target!} suffix={s.suffix!} delay={i * 120} />}
+                </div>
+                <div className="mt-1 text-xs uppercase tracking-wider font-mono text-slate-500 group-hover/stat:text-slate-400 transition-colors">
+                  {s.label}
+                </div>
               </div>
-              <div className="mt-1 text-xs uppercase tracking-wider font-mono text-slate-500">
-                {s.label}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
