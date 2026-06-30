@@ -134,10 +134,10 @@ function CertCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.55, delay: Math.min(index * 0.06, 0.24), ease: EASE }}
+      transition={{ duration: 0.7, delay: Math.min(index * 0.08, 0.32), ease: EASE }}
       whileHover={clickable ? { y: -4 } : undefined}
       onClick={clickable ? onOpen : undefined}
       role={clickable ? "button" : undefined}
@@ -153,50 +153,53 @@ function CertCard({
           : undefined
       }
       aria-label={clickable ? `View ${cert.name} certificate` : undefined}
-      className={`group relative rounded-xl border bg-ink-900/50 transition-colors duration-200 p-6 overflow-hidden ${
+      className={`group relative rounded-[1.5rem] p-1.5 bg-white/[0.03] ring-1 ring-white/10 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
         clickable
-          ? "border-white/5 hover:border-accent/30 hover:bg-ink-900/80 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-          : "border-white/5"
+          ? "cursor-pointer group-hover:ring-accent/25 hover:ring-accent/25 hover:shadow-[0_26px_70px_-24px_rgba(56,189,248,0.22)] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+          : ""
       }`}
     >
-      {/* Hover glow */}
-      {clickable && (
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{
-            background:
-              "radial-gradient(420px circle at 50% 0%, rgba(125,211,252,0.08), transparent 55%)",
-          }}
-        />
-      )}
+      {/* Inner core — concentric radius + inset top highlight */}
+      <div className="relative rounded-[1.125rem] bg-ink-900/60 p-6 overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
+        {/* Hover glow */}
+        {clickable && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              background:
+                "radial-gradient(420px circle at 50% 0%, rgba(125,211,252,0.08), transparent 55%)",
+            }}
+          />
+        )}
 
-      <div className="relative flex items-start justify-between">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/15 to-ink-800 border border-accent/20 flex items-center justify-center transition-transform duration-200 ease-out group-hover:scale-105">
-          <Icon className="w-5 h-5 text-accent" />
+        <div className="relative flex items-start justify-between">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent/15 to-ink-800 border border-accent/20 flex items-center justify-center transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105">
+            <Icon className="w-5 h-5 text-accent" />
+          </div>
+          <div className="w-2 h-2 rounded-full bg-accent/60 shadow-[0_0_12px_rgba(125,211,252,0.6)]" />
         </div>
-        <div className="w-2 h-2 rounded-full bg-accent/60 shadow-[0_0_12px_rgba(125,211,252,0.6)]" />
-      </div>
-      <div className="relative mt-6 font-display text-xl font-semibold text-slate-100 tracking-tight">
-        {cert.name}
-      </div>
-      <div className="relative font-mono text-[11px] tracking-[0.18em] uppercase text-accent mt-1">
-        {cert.detail}
-      </div>
-      <p className="relative mt-3 text-sm text-slate-400 leading-relaxed">{cert.scope}</p>
+        <div className="relative mt-6 font-display text-xl font-semibold text-slate-100 tracking-tight">
+          {cert.name}
+        </div>
+        <div className="relative font-mono text-[11px] tracking-[0.18em] uppercase text-accent mt-1">
+          {cert.detail}
+        </div>
+        <p className="relative mt-3 text-sm text-slate-400 leading-relaxed">{cert.scope}</p>
 
-      {/* View affordance */}
-      {clickable ? (
-        <div className="relative mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-400 group-hover:text-accent transition-colors">
-          <FileText className="w-3.5 h-3.5" />
-          View certificate
-          <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </div>
-      ) : (
-        <div className="relative mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-600">
-          Certificate on request
-        </div>
-      )}
+        {/* View affordance */}
+        {clickable ? (
+          <div className="relative mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-400 group-hover:text-accent transition-colors">
+            <FileText className="w-3.5 h-3.5" />
+            View certificate
+            <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
+        ) : (
+          <div className="relative mt-4 inline-flex items-center gap-1.5 text-[12px] font-medium text-slate-600">
+            Certificate on request
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
