@@ -42,6 +42,7 @@ export default function Footer() {
                 ["#about", "About"],
                 ["#faq", "FAQ"],
                 ["#contact", "Contact"],
+                ["/sms-privacy", "SMS Terms & Privacy"],
               ].map(([href, label]) => (
                 <li key={href}>
                   <a href={href} className="text-slate-400 hover:text-accent transition-colors">
