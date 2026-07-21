@@ -35,7 +35,7 @@ export default function Contact() {
           transition={{ duration: 0.6, delay: 0.05, ease: EASE }}
           className="mt-4 font-display text-4xl md:text-6xl font-semibold tracking-[-0.025em] text-slate-100 max-w-4xl text-glow"
         >
-          AOG or RFQ — we&apos;re already on it.
+          Let&apos;s talk about your next repair.
         </motion.h2>
 
         <motion.p
@@ -45,8 +45,8 @@ export default function Contact() {
           transition={{ duration: 0.5, delay: 0.12, ease: EASE }}
           className="mt-5 max-w-2xl text-lg text-slate-400"
         >
-          Send part numbers, damage photos, or a sketch on a napkin. We&apos;ll respond fast and
-          tell you what&apos;s actually possible — including options that aren&apos;t on anyone else&apos;s menu.
+          Send part numbers, damage photos, or a description of what you need. We&apos;ll respond
+          quickly with a clear answer on what&apos;s possible — and how fast.
         </motion.p>
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-3">
