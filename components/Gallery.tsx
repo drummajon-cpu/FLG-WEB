@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { SectionHeader } from "./Capabilities";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
@@ -200,123 +201,175 @@ function BlueprintCard({ work, feature }: { work: Work; feature?: boolean }) {
   );
 }
 
+/** Keeps measured coordinates from serialising as 170.23999999999998. */
+const px = (n: number) => Math.round(n * 10) / 10;
+
+/**
+ * Reports the rendered CSS-pixel size of an element.
+ *
+ * The drawing overlay below is a viewBox-less <svg>, so one user unit is one
+ * CSS pixel. SVG parses `d`, `transform` and <text> x/y with its own grammar,
+ * which has no calc() — so every mark anchored to the right or bottom edge has
+ * to be given a real number, computed from the measured box.
+ */
+function useElementSize<T extends Element>() {
+  const ref = useRef<T>(null);
+  const [size, setSize] = useState({ w: 0, h: 0 });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const measure = () => {
+      const { width, height } = el.getBoundingClientRect();
+      setSize((prev) => (prev.w === width && prev.h === height ? prev : { w: width, h: height }));
+    };
+
+    // Measure up front: a ResizeObserver only delivers once the page is
+    // painting, so in a background tab the drawing would stay empty.
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, size] as const;
+}
+
 function EngineeringDrawing({ work, feature }: { work: Work; feature?: boolean }) {
   const scale = feature ? "1.5" : "1";
+  const [ref, { w, h }] = useElementSize<SVGSVGElement>();
+
+  // Right dimension line, 22px in from the trailing edge.
+  const dimX = px(w - 22);
+  const dimTop = px(h * 0.18);
+  const dimBottom = px(h * 0.82);
+  // Corner hash marks: elbow 26px in from the corner, arms reaching to 10px.
+  const elbowX = px(w - 26);
+  const elbowY = px(h - 26);
+  const armX = px(w - 10);
+  const armY = px(h - 10);
+
   return (
     <svg
+      ref={ref}
       aria-hidden
       className="absolute inset-0 w-full h-full text-accent/10 pointer-events-none"
       preserveAspectRatio="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <defs>
-        <marker id={`arrow-${work.silhouette}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-          <path d="M 0 0 L 5 3 L 0 6 z" fill="currentColor" opacity="0.5" />
-        </marker>
-        <marker id={`arrow-r-${work.silhouette}`} markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto">
-          <path d="M 6 0 L 1 3 L 6 6 z" fill="currentColor" opacity="0.5" />
-        </marker>
-      </defs>
+      {/* Nothing can be placed until the box has been measured. */}
+      {w > 0 && h > 0 && (
+        <>
+          <defs>
+            <marker id={`arrow-${work.silhouette}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M 0 0 L 5 3 L 0 6 z" fill="currentColor" opacity="0.5" />
+            </marker>
+            <marker id={`arrow-r-${work.silhouette}`} markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto">
+              <path d="M 6 0 L 1 3 L 6 6 z" fill="currentColor" opacity="0.5" />
+            </marker>
+          </defs>
 
-      {/* Double frame border */}
-      <rect x="6" y="6" width="calc(100% - 12px)" height="calc(100% - 12px)" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.4" />
-      <rect x="10" y="10" width="calc(100% - 20px)" height="calc(100% - 20px)" fill="none" stroke="currentColor" strokeWidth="0.3" opacity="0.25" />
+          {/* Double frame border */}
+          <rect x="6" y="6" width={px(w - 12)} height={px(h - 12)} fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.4" />
+          <rect x="10" y="10" width={px(w - 20)} height={px(h - 20)} fill="none" stroke="currentColor" strokeWidth="0.3" opacity="0.25" />
 
-      {/* Top dimension line with arrows + value */}
-      <g opacity="0.55">
-        <line
-          x1="14%"
-          y1="22"
-          x2="86%"
-          y2="22"
-          stroke="currentColor"
-          strokeWidth="0.5"
-          markerStart={`url(#arrow-r-${work.silhouette})`}
-          markerEnd={`url(#arrow-${work.silhouette})`}
-        />
-        <line x1="14%" y1="14" x2="14%" y2="30" stroke="currentColor" strokeWidth="0.5" />
-        <line x1="86%" y1="14" x2="86%" y2="30" stroke="currentColor" strokeWidth="0.5" />
-        <text x="50%" y="18" fontSize={feature ? "10" : "8"} fill="currentColor" textAnchor="middle" fontFamily="ui-monospace, monospace" opacity="0.8">
-          {dimensionFor(work.silhouette).chord}
-        </text>
-      </g>
+          {/* Top dimension line with arrows + value */}
+          <g opacity="0.55">
+            <line
+              x1={px(w * 0.14)}
+              y1="22"
+              x2={px(w * 0.86)}
+              y2="22"
+              stroke="currentColor"
+              strokeWidth="0.5"
+              markerStart={`url(#arrow-r-${work.silhouette})`}
+              markerEnd={`url(#arrow-${work.silhouette})`}
+            />
+            <line x1={px(w * 0.14)} y1="14" x2={px(w * 0.14)} y2="30" stroke="currentColor" strokeWidth="0.5" />
+            <line x1={px(w * 0.86)} y1="14" x2={px(w * 0.86)} y2="30" stroke="currentColor" strokeWidth="0.5" />
+            <text x={px(w / 2)} y="18" fontSize={feature ? "10" : "8"} fill="currentColor" textAnchor="middle" fontFamily="ui-monospace, monospace" opacity="0.8">
+              {dimensionFor(work.silhouette).chord}
+            </text>
+          </g>
 
-      {/* Right dimension line with arrows + value */}
-      <g opacity="0.55">
-        <line
-          x1="calc(100% - 22px)"
-          y1="18%"
-          x2="calc(100% - 22px)"
-          y2="82%"
-          stroke="currentColor"
-          strokeWidth="0.5"
-          markerStart={`url(#arrow-r-${work.silhouette})`}
-          markerEnd={`url(#arrow-${work.silhouette})`}
-        />
-        <line x1="calc(100% - 30px)" y1="18%" x2="calc(100% - 14px)" y2="18%" stroke="currentColor" strokeWidth="0.5" />
-        <line x1="calc(100% - 30px)" y1="82%" x2="calc(100% - 14px)" y2="82%" stroke="currentColor" strokeWidth="0.5" />
-        <text
-          x="calc(100% - 22px)"
-          y="50%"
-          fontSize={feature ? "10" : "8"}
-          fill="currentColor"
-          textAnchor="middle"
-          fontFamily="ui-monospace, monospace"
-          opacity="0.8"
-          transform="rotate(-90 calc(100% - 22px) 0)"
-          style={{ transformOrigin: "calc(100% - 22px) 50%" }}
-        >
-          {dimensionFor(work.silhouette).thickness}
-        </text>
-      </g>
+          {/* Right dimension line with arrows + value */}
+          <g opacity="0.55">
+            <line
+              x1={dimX}
+              y1={dimTop}
+              x2={dimX}
+              y2={dimBottom}
+              stroke="currentColor"
+              strokeWidth="0.5"
+              markerStart={`url(#arrow-r-${work.silhouette})`}
+              markerEnd={`url(#arrow-${work.silhouette})`}
+            />
+            <line x1={px(w - 30)} y1={dimTop} x2={px(w - 14)} y2={dimTop} stroke="currentColor" strokeWidth="0.5" />
+            <line x1={px(w - 30)} y1={dimBottom} x2={px(w - 14)} y2={dimBottom} stroke="currentColor" strokeWidth="0.5" />
+            <text
+              x={dimX}
+              y={px(h / 2)}
+              fontSize={feature ? "10" : "8"}
+              fill="currentColor"
+              textAnchor="middle"
+              fontFamily="ui-monospace, monospace"
+              opacity="0.8"
+              transform={`rotate(-90 ${dimX} ${px(h / 2)})`}
+            >
+              {dimensionFor(work.silhouette).thickness}
+            </text>
+          </g>
 
-      {/* Centerlines — long-short-long dash pattern crossing center */}
-      <g opacity="0.3">
-        <line x1="6%" y1="50%" x2="94%" y2="50%" stroke="currentColor" strokeWidth="0.4" strokeDasharray="8 2 1 2" />
-        <line x1="50%" y1="6%" x2="50%" y2="94%" stroke="currentColor" strokeWidth="0.4" strokeDasharray="8 2 1 2" />
-      </g>
+          {/* Centerlines — long-short-long dash pattern crossing center */}
+          <g opacity="0.3">
+            <line x1={px(w * 0.06)} y1={px(h / 2)} x2={px(w * 0.94)} y2={px(h / 2)} stroke="currentColor" strokeWidth="0.4" strokeDasharray="8 2 1 2" />
+            <line x1={px(w / 2)} y1={px(h * 0.06)} x2={px(w / 2)} y2={px(h * 0.94)} stroke="currentColor" strokeWidth="0.4" strokeDasharray="8 2 1 2" />
+          </g>
 
-      {/* Section/detail markers */}
-      <g opacity="0.6">
-        <circle cx="20%" cy="50%" r={feature ? "10" : "7"} fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="3 2" />
-        <text x="20%" y="50%" fontSize={feature ? "9" : "7"} fill="currentColor" textAnchor="middle" dy="0.35em" fontFamily="ui-monospace, monospace">A</text>
-        <circle cx="80%" cy="50%" r={feature ? "10" : "7"} fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="3 2" />
-        <text x="80%" y="50%" fontSize={feature ? "9" : "7"} fill="currentColor" textAnchor="middle" dy="0.35em" fontFamily="ui-monospace, monospace">B</text>
-      </g>
+          {/* Section/detail markers */}
+          <g opacity="0.6">
+            <circle cx={px(w * 0.2)} cy={px(h / 2)} r={feature ? "10" : "7"} fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="3 2" />
+            <text x={px(w * 0.2)} y={px(h / 2)} fontSize={feature ? "9" : "7"} fill="currentColor" textAnchor="middle" dy="0.35em" fontFamily="ui-monospace, monospace">A</text>
+            <circle cx={px(w * 0.8)} cy={px(h / 2)} r={feature ? "10" : "7"} fill="none" stroke="currentColor" strokeWidth="0.6" strokeDasharray="3 2" />
+            <text x={px(w * 0.8)} y={px(h / 2)} fontSize={feature ? "9" : "7"} fill="currentColor" textAnchor="middle" dy="0.35em" fontFamily="ui-monospace, monospace">B</text>
+          </g>
 
-      {/* Corner hash marks */}
-      <g opacity="0.5" stroke="currentColor" strokeWidth="0.6" fill="none">
-        <path d="M 10 26 L 26 26 M 26 26 L 26 10" />
-        <path d="M calc(100% - 26px) 10 L calc(100% - 26px) 26 M calc(100% - 26px) 26 L calc(100% - 10px) 26" />
-        <path d="M 10 calc(100% - 26px) L 26 calc(100% - 26px) M 26 calc(100% - 26px) L 26 calc(100% - 10px)" />
-        <path d="M calc(100% - 26px) calc(100% - 10px) L calc(100% - 26px) calc(100% - 26px) M calc(100% - 26px) calc(100% - 26px) L calc(100% - 10px) calc(100% - 26px)" />
-      </g>
+          {/* Corner hash marks */}
+          <g opacity="0.5" stroke="currentColor" strokeWidth="0.6" fill="none">
+            <path d="M 10 26 L 26 26 M 26 26 L 26 10" />
+            <path d={`M ${elbowX} 10 L ${elbowX} 26 M ${elbowX} 26 L ${armX} 26`} />
+            <path d={`M 10 ${elbowY} L 26 ${elbowY} M 26 ${elbowY} L 26 ${armY}`} />
+            <path d={`M ${elbowX} ${armY} L ${elbowX} ${elbowY} M ${elbowX} ${elbowY} L ${armX} ${elbowY}`} />
+          </g>
 
-      {/* Title block (bottom-right inside frame) */}
-      {feature && (
-        <g transform="translate(calc(100% - 180px), calc(100% - 60px))" opacity="0.7">
-          <rect x="0" y="0" width="160" height="44" fill="rgba(5,7,10,0.5)" stroke="currentColor" strokeWidth="0.5" />
-          <line x1="0" y1="14" x2="160" y2="14" stroke="currentColor" strokeWidth="0.4" />
-          <line x1="80" y1="14" x2="80" y2="44" stroke="currentColor" strokeWidth="0.4" />
-          <line x1="0" y1="29" x2="160" y2="29" stroke="currentColor" strokeWidth="0.4" />
-          <text x="6" y="10" fontSize="7" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.9">FLG TECHNICS · MRO</text>
-          <text x="6" y="24" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.7">PART</text>
-          <text x="6" y="39" fontSize="7" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.9">{work.partNo}</text>
-          <text x="86" y="24" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.7">SCALE</text>
-          <text x="86" y="39" fontSize="7" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.9">1:{scale.replace(".", "")}</text>
-        </g>
+          {/* Title block (bottom-right inside frame) */}
+          {feature && (
+            <g transform={`translate(${px(w - 180)}, ${px(h - 60)})`} opacity="0.7">
+              <rect x="0" y="0" width="160" height="44" fill="rgba(5,7,10,0.5)" stroke="currentColor" strokeWidth="0.5" />
+              <line x1="0" y1="14" x2="160" y2="14" stroke="currentColor" strokeWidth="0.4" />
+              <line x1="80" y1="14" x2="80" y2="44" stroke="currentColor" strokeWidth="0.4" />
+              <line x1="0" y1="29" x2="160" y2="29" stroke="currentColor" strokeWidth="0.4" />
+              <text x="6" y="10" fontSize="7" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.9">FLG TECHNICS · MRO</text>
+              <text x="6" y="24" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.7">PART</text>
+              <text x="6" y="39" fontSize="7" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.9">{work.partNo}</text>
+              <text x="86" y="24" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.7">SCALE</text>
+              <text x="86" y="39" fontSize="7" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.9">1:{scale.replace(".", "")}</text>
+            </g>
+          )}
+
+          {/* Scale bar (bottom-left) */}
+          <g transform={`translate(14, ${px(h - 18)})`} opacity="0.5">
+            <line x1="0" y1="0" x2="60" y2="0" stroke="currentColor" strokeWidth="0.5" />
+            <line x1="0" y1="-3" x2="0" y2="3" stroke="currentColor" strokeWidth="0.5" />
+            <line x1="20" y1="-2" x2="20" y2="2" stroke="currentColor" strokeWidth="0.5" />
+            <line x1="40" y1="-2" x2="40" y2="2" stroke="currentColor" strokeWidth="0.5" />
+            <line x1="60" y1="-3" x2="60" y2="3" stroke="currentColor" strokeWidth="0.5" />
+            <text x="0" y="10" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.8">0</text>
+            <text x="60" y="10" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.8" textAnchor="end">100mm</text>
+          </g>
+        </>
       )}
-
-      {/* Scale bar (bottom-left) */}
-      <g transform="translate(14, calc(100% - 18px))" opacity="0.5">
-        <line x1="0" y1="0" x2="60" y2="0" stroke="currentColor" strokeWidth="0.5" />
-        <line x1="0" y1="-3" x2="0" y2="3" stroke="currentColor" strokeWidth="0.5" />
-        <line x1="20" y1="-2" x2="20" y2="2" stroke="currentColor" strokeWidth="0.5" />
-        <line x1="40" y1="-2" x2="40" y2="2" stroke="currentColor" strokeWidth="0.5" />
-        <line x1="60" y1="-3" x2="60" y2="3" stroke="currentColor" strokeWidth="0.5" />
-        <text x="0" y="10" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.8">0</text>
-        <text x="60" y="10" fontSize="6" fill="currentColor" fontFamily="ui-monospace, monospace" opacity="0.8" textAnchor="end">100mm</text>
-      </g>
     </svg>
   );
 }
@@ -367,40 +420,6 @@ function BlueprintBackground() {
         }}
       />
     </>
-  );
-}
-
-function TechnicalFrame({ feature }: { feature?: boolean }) {
-  const size = feature ? 16 : 10;
-  const dimensions = feature
-    ? ["A", "B", "C", "D", "E", "F"]
-    : ["A", "B", "C"];
-
-  return (
-    <svg
-      aria-hidden
-      className="absolute inset-0 w-full h-full text-accent/35 pointer-events-none"
-      preserveAspectRatio="none"
-    >
-      {/* Corner brackets */}
-      <path d={`M 12 12 L ${size + 12} 12 M 12 12 L 12 ${size + 12}`} stroke="currentColor" strokeWidth="1" fill="none" />
-      <path d={`M calc(100% - ${size + 12}px) 12 L calc(100% - 12px) 12 M calc(100% - 12px) 12 L calc(100% - 12px) ${size + 12}`} stroke="currentColor" strokeWidth="1" fill="none" />
-
-      {/* Tick marks along edges — simulated dimension scale */}
-      <g stroke="currentColor" strokeWidth="0.8" opacity="0.5">
-        {dimensions.map((_, i) => {
-          const pct = ((i + 1) * 100) / (dimensions.length + 1);
-          return (
-            <g key={i}>
-              <line x1={`${pct}%`} y1="0" x2={`${pct}%`} y2="8" />
-              <line x1={`${pct}%`} y1="calc(100% - 8px)" x2={`${pct}%`} y2="100%" />
-              <line x1="0" y1={`${pct}%`} x2="8" y2={`${pct}%`} />
-              <line x1="calc(100% - 8px)" y1={`${pct}%`} x2="100%" y2={`${pct}%`} />
-            </g>
-          );
-        })}
-      </g>
-    </svg>
   );
 }
 
