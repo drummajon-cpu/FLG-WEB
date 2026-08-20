@@ -11,7 +11,23 @@ export default function Contact() {
     <section id="contact" className="relative py-28 md:py-36 overflow-hidden">
       {/* Background accents */}
       <div aria-hidden className="absolute inset-0 bg-grid-fine opacity-30 mask-radial" />
-      <div aria-hidden className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-accent-deep/10 blur-[120px]" />
+      {/*
+        Cyan halo behind the heading. This used to be a solid circle with
+        blur-[120px], but the section is overflow-hidden, so the entire upper
+        half of that blur was clipped away — the glow appeared out of nowhere at
+        ~50% strength, a hard ~11/255 step in the blue channel right across the
+        top edge. A radial gradient whose falloff reaches zero exactly at the
+        edge (centre 38%, vertical radius 38%) gives the same halo with nothing
+        to clip.
+      */}
+      <div
+        aria-hidden
+        className="absolute left-1/2 top-0 h-[900px] w-[1100px] -translate-x-1/2"
+        style={{
+          background:
+            "radial-gradient(48% 38% at 50% 38%, rgba(14,165,233,0.13) 0%, rgba(14,165,233,0.065) 50%, rgba(14,165,233,0) 100%)",
+        }}
+      />
       <RadioArcs />
 
       <div className="relative max-w-7xl mx-auto px-6">
