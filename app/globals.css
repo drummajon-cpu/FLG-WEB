@@ -136,3 +136,114 @@ body {
 .text-glow {
   text-shadow: 0 0 24px rgba(125, 211, 252, 0.25);
 }
+
+/* ===========================================================================
+   Excellence globe panorama  —  components/ExcellenceGlobe.tsx
+
+   Motion layers drawn over the flat "Excellence in everything we do" artwork.
+   Everything animates transform/opacity/stroke-dashoffset only, pauses when
+   the section scrolls out of view (via [data-active]), and steps back under
+   prefers-reduced-motion.
+   =========================================================================== */
+
+.eg-plane {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* Tracers — one dashoffset sweep per route. The head, body and tail dashes
+   share the sweep; their differing --eg-from/--eg-to keep the longer dashes
+   trailing the head rather than running ahead of it. */
+@keyframes egTracer {
+  from { stroke-dashoffset: var(--eg-from); }
+  to   { stroke-dashoffset: var(--eg-to); }
+}
+.eg-tracer {
+  animation: egTracer var(--eg-dur) linear var(--eg-delay) infinite;
+}
+
+/* Connection nodes — brighten and swell a few pixels, then settle back. */
+@keyframes egNode {
+  0%, 100% { transform: scale(0.82); opacity: 0.18; }
+  50%      { transform: scale(1.30); opacity: 0.62; }
+}
+.eg-node {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: egNode var(--eg-dur) cubic-bezier(0.45, 0, 0.55, 1) var(--eg-delay) infinite;
+}
+
+/* Atmosphere — opacity only, so the globe never moves or resizes. */
+@keyframes egBreathe {
+  0%, 100% { opacity: var(--eg-lo); }
+  50%      { opacity: var(--eg-hi); }
+}
+.eg-breathe {
+  animation: egBreathe var(--eg-dur) ease-in-out var(--eg-delay) infinite;
+}
+
+/* Outer HUD rings — opposed directions, extremely slow. */
+@keyframes egSpin    { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes egSpinRev { from { transform: rotate(0deg); } to { transform: rotate(-360deg); } }
+.eg-ring,
+.eg-ring-rev {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.eg-ring     { animation: egSpin    var(--eg-dur) linear infinite; }
+.eg-ring-rev { animation: egSpinRev var(--eg-dur) linear infinite; }
+
+/* Distant data points — slow drift at varied depths. */
+@keyframes egDrift {
+  from { transform: translate3d(0, 0, 0); opacity: var(--eg-lo); }
+  50%  { opacity: var(--eg-hi); }
+  to   { transform: translate3d(var(--eg-dx), var(--eg-dy), 0); opacity: var(--eg-lo); }
+}
+.eg-particle {
+  animation: egDrift var(--eg-dur) ease-in-out var(--eg-delay) infinite alternate;
+}
+
+/* Icon hover — brightens the teal ring already drawn in the artwork and lays a
+   soft glow just outside it. No transform, so the icon cannot shift or warp. */
+.eg-hotspot {
+  position: absolute;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid rgba(94, 212, 195, 0);
+  border-radius: 9999px;
+  box-shadow: 0 0 0 0 rgba(46, 185, 168, 0);
+  transition:
+    border-color 260ms var(--ease-out-expo),
+    box-shadow 260ms var(--ease-out-expo);
+}
+@media (hover: hover) and (pointer: fine) {
+  .eg-hotspot:hover {
+    border-color: rgba(94, 212, 195, 0.85);
+    box-shadow:
+      0 0 18px 3px rgba(46, 185, 168, 0.30),
+      inset 0 0 14px rgba(94, 212, 195, 0.14);
+  }
+}
+
+/* Off-screen or backgrounded tab: stop spending frames entirely. */
+.eg-stage[data-active="false"] .eg-anim {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* The site-wide rule near the top of this file already collapses every
+     animation to 0.01ms with a single iteration, so a keyframed layer would
+     snap back to its *base* style once that lone iteration ends — opacity 1,
+     i.e. bright blobs. Pin explicit resting values instead of trusting the
+     keyframe end state. */
+  .eg-tracers { display: none; }
+  .eg-ring,
+  .eg-ring-rev,
+  .eg-particle,
+  .eg-node,
+  .eg-breathe { animation: none; }
+  .eg-particle { opacity: var(--eg-hi); }
+  .eg-node { opacity: 0.34; }
+  .eg-breathe { opacity: var(--eg-lo); }
+  .eg-plane { transform: none !important; }
+}
