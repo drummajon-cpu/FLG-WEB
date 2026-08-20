@@ -25,8 +25,8 @@ import { motion } from "framer-motion";
 const VB_W = 1536;
 const VB_H = 1024;
 
-/** Earth limb, least-squares fitted to the artwork's bright edge (~4px residual). */
-const GLOBE = { cx: 763.4, cy: 860.5, r: 459.3 };
+/** Earth limb, least-squares fitted to the artwork's bright edge (~5px residual). */
+const GLOBE = { cx: 769.3, cy: 849.6, r: 438.6 };
 
 type Route = { d: string; dur: number; delay: number; hue: "cyan" | "teal" };
 
@@ -36,49 +36,45 @@ type Route = { d: string; dur: number; delay: number; hue: "cyan" | "teal" };
  * real stroke), and rejected if it merely hugged the bright limb.
  */
 const ROUTES: Route[] = [
-  { d: "M608 480 Q751 387 884 494", dur: 7.4, delay: 0.0, hue: "cyan" },
-  { d: "M608 480 Q799 360 890 566", dur: 9.6, delay: 2.7, hue: "teal" },
-  { d: "M928 558 Q865 444 740 408", dur: 6.8, delay: 1.4, hue: "cyan" },
-  { d: "M862 572 Q1054 383 1212 602", dur: 11.2, delay: 4.1, hue: "teal" },
-  { d: "M882 548 Q1005 561 1126 584", dur: 8.1, delay: 6.3, hue: "cyan" },
-  { d: "M978 498 Q1138 454 1212 602", dur: 9.0, delay: 3.2, hue: "teal" },
-  { d: "M1264 696 Q1201 482 978 498", dur: 10.4, delay: 5.5, hue: "cyan" },
-  { d: "M928 558 Q1114 538 1166 718", dur: 7.9, delay: 8.2, hue: "teal" },
-  { d: "M310 722 Q333 446 608 480", dur: 12.0, delay: 1.9, hue: "cyan" },
+  { d: "M360 612 Q490 618 578 522", dur: 7.4, delay: 0.0, hue: "cyan" },
+  { d: "M646 708 Q556 504 360 612", dur: 9.6, delay: 2.7, hue: "teal" },
+  { d: "M448 716 Q531 595 678 598", dur: 6.8, delay: 1.4, hue: "cyan" },
+  { d: "M578 522 Q728 387 902 490", dur: 11.2, delay: 4.1, hue: "teal" },
+  { d: "M970 608 Q805 423 578 522", dur: 8.6, delay: 6.3, hue: "cyan" },
+  { d: "M1146 472 Q1033 606 902 490", dur: 9.4, delay: 3.2, hue: "teal" },
+  { d: "M1154 758 Q1097 559 902 490", dur: 10.8, delay: 5.5, hue: "cyan" },
 ];
 
 /** Connection nodes — the route endpoints, i.e. nodes actually drawn on the globe. */
 const NODES: { x: number; y: number; dur: number; delay: number }[] = [
-  { x: 608, y: 480, dur: 5.2, delay: 0.0 },
-  { x: 884, y: 494, dur: 6.4, delay: 1.3 },
-  { x: 890, y: 566, dur: 5.8, delay: 2.6 },
-  { x: 928, y: 558, dur: 7.1, delay: 0.9 },
-  { x: 740, y: 408, dur: 6.0, delay: 3.4 },
-  { x: 862, y: 572, dur: 5.5, delay: 4.2 },
-  { x: 1212, y: 602, dur: 6.7, delay: 1.8 },
-  { x: 882, y: 548, dur: 5.9, delay: 5.1 },
-  { x: 1126, y: 584, dur: 7.3, delay: 2.2 },
-  { x: 978, y: 498, dur: 6.2, delay: 3.9 },
-  { x: 1264, y: 696, dur: 5.6, delay: 0.5 },
-  { x: 1166, y: 718, dur: 6.9, delay: 4.7 },
-  { x: 310, y: 722, dur: 6.1, delay: 2.9 },
+  { x: 360, y: 612, dur: 5.2, delay: 0.0 },
+  { x: 578, y: 522, dur: 6.4, delay: 1.3 },
+  { x: 646, y: 708, dur: 5.8, delay: 2.6 },
+  { x: 448, y: 716, dur: 7.1, delay: 0.9 },
+  { x: 678, y: 598, dur: 6.0, delay: 3.4 },
+  { x: 902, y: 490, dur: 5.5, delay: 4.2 },
+  { x: 970, y: 608, dur: 6.7, delay: 1.8 },
+  { x: 1146, y: 472, dur: 5.9, delay: 5.1 },
+  { x: 1154, y: 758, dur: 7.3, delay: 2.2 },
+  { x: 870, y: 604, dur: 6.2, delay: 3.9 },
+  { x: 382, y: 820, dur: 5.6, delay: 4.7 },
 ];
 
 /** Icon rings, located by annulus matching — all 13 verified against the art. */
 const ICONS: { x: number; y: number; r: number }[] = [
-  { x: 206, y: 314, r: 44 },
-  { x: 672, y: 346, r: 40 },
-  { x: 1146, y: 322, r: 42 },
-  { x: 112, y: 444, r: 42 },
-  { x: 1262, y: 452, r: 42 },
-  { x: 84, y: 580, r: 42 },
-  { x: 1288, y: 586, r: 42 },
-  { x: 102, y: 720, r: 42 },
-  { x: 1234, y: 718, r: 42 },
-  { x: 364, y: 838, r: 42 },
-  { x: 636, y: 844, r: 42 },
-  { x: 886, y: 844, r: 42 },
-  { x: 1184, y: 854, r: 40 },
+  { x: 222, y: 332, r: 42 },
+  { x: 682, y: 356, r: 41 },
+  { x: 1144, y: 332, r: 43 },
+  { x: 126, y: 462, r: 42 },
+  { x: 1252, y: 472, r: 42 },
+  { x: 100, y: 610, r: 42 },
+  { x: 1276, y: 614, r: 42 },
+  { x: 108, y: 756, r: 43 },
+  { x: 1220, y: 756, r: 42 },
+  { x: 366, y: 882, r: 40 },
+  { x: 634, y: 882, r: 40 },
+  { x: 880, y: 882, r: 40 },
+  { x: 1174, y: 890, r: 40 },
 ];
 
 /** Distant data points, seeded only in the artwork's empty dark margins. */
@@ -92,24 +88,24 @@ const PARTICLES: {
   delay: number;
   o: number;
 }[] = [
-  { x: 58, y: 96, r: 1.6, dx: 10, dy: 7, dur: 17, delay: 0.0, o: 0.3 },
-  { x: 150, y: 62, r: 1.1, dx: -8, dy: 9, dur: 21, delay: 3.0, o: 0.22 },
-  { x: 232, y: 176, r: 1.9, dx: 7, dy: -9, dur: 19, delay: 6.0, o: 0.26 },
-  { x: 96, y: 210, r: 1.3, dx: 9, dy: 6, dur: 23, delay: 1.5, o: 0.2 },
-  { x: 1318, y: 78, r: 1.5, dx: -9, dy: 8, dur: 18, delay: 2.0, o: 0.28 },
-  { x: 1436, y: 140, r: 1.2, dx: 8, dy: -7, dur: 22, delay: 5.0, o: 0.22 },
-  { x: 1372, y: 214, r: 1.8, dx: -7, dy: -8, dur: 20, delay: 8.0, o: 0.24 },
-  { x: 1492, y: 56, r: 1.1, dx: -6, dy: 9, dur: 24, delay: 3.5, o: 0.18 },
-  { x: 24, y: 372, r: 1.4, dx: 8, dy: 10, dur: 21, delay: 1.0, o: 0.24 },
-  { x: 16, y: 560, r: 1.1, dx: 9, dy: -8, dur: 25, delay: 4.5, o: 0.18 },
-  { x: 30, y: 742, r: 1.6, dx: 7, dy: 9, dur: 19, delay: 7.0, o: 0.22 },
-  { x: 1508, y: 400, r: 1.3, dx: -8, dy: 9, dur: 22, delay: 2.5, o: 0.22 },
-  { x: 1520, y: 604, r: 1.5, dx: -7, dy: -9, dur: 20, delay: 6.0, o: 0.2 },
-  { x: 1500, y: 786, r: 1.2, dx: -9, dy: 7, dur: 24, delay: 0.5, o: 0.18 },
-  { x: 210, y: 978, r: 1.4, dx: 11, dy: -7, dur: 23, delay: 3.0, o: 0.2 },
+  { x: 58, y: 76, r: 1.6, dx: 10, dy: 7, dur: 17, delay: 0.0, o: 0.3 },
+  { x: 160, y: 52, r: 1.1, dx: -8, dy: 9, dur: 21, delay: 3.0, o: 0.22 },
+  { x: 242, y: 116, r: 1.9, dx: 7, dy: -9, dur: 19, delay: 6.0, o: 0.26 },
+  { x: 96, y: 140, r: 1.3, dx: 9, dy: 6, dur: 23, delay: 1.5, o: 0.2 },
+  { x: 1330, y: 68, r: 1.5, dx: -9, dy: 8, dur: 18, delay: 2.0, o: 0.28 },
+  { x: 1446, y: 120, r: 1.2, dx: 8, dy: -7, dur: 22, delay: 5.0, o: 0.22 },
+  { x: 1382, y: 44, r: 1.8, dx: -7, dy: -8, dur: 20, delay: 8.0, o: 0.24 },
+  { x: 1492, y: 150, r: 1.1, dx: -6, dy: 9, dur: 24, delay: 3.5, o: 0.18 },
+  { x: 26, y: 372, r: 1.4, dx: 8, dy: 10, dur: 21, delay: 1.0, o: 0.24 },
+  { x: 18, y: 560, r: 1.1, dx: 9, dy: -8, dur: 25, delay: 4.5, o: 0.18 },
+  { x: 32, y: 742, r: 1.6, dx: 7, dy: 9, dur: 19, delay: 7.0, o: 0.22 },
+  { x: 1500, y: 400, r: 1.3, dx: -8, dy: 9, dur: 22, delay: 2.5, o: 0.22 },
+  { x: 1512, y: 604, r: 1.5, dx: -7, dy: -9, dur: 20, delay: 6.0, o: 0.2 },
+  { x: 1494, y: 786, r: 1.2, dx: -9, dy: 7, dur: 24, delay: 0.5, o: 0.18 },
+  { x: 210, y: 980, r: 1.4, dx: 11, dy: -7, dur: 23, delay: 3.0, o: 0.2 },
   { x: 560, y: 996, r: 1.1, dx: -9, dy: -8, dur: 26, delay: 6.5, o: 0.16 },
-  { x: 940, y: 966, r: 1.7, dx: 8, dy: 9, dur: 21, delay: 1.2, o: 0.22 },
-  { x: 1290, y: 988, r: 1.3, dx: -10, dy: -6, dur: 24, delay: 4.0, o: 0.18 },
+  { x: 940, y: 974, r: 1.7, dx: 8, dy: 9, dur: 21, delay: 1.2, o: 0.22 },
+  { x: 1290, y: 990, r: 1.3, dx: -10, dy: -6, dur: 24, delay: 4.0, o: 0.18 },
 ];
 
 /** Upper limb arc, swept across the top of the fitted Earth circle. */
@@ -390,7 +386,7 @@ export default function ExcellenceGlobe() {
                 <circle
                   cx={GLOBE.cx}
                   cy={GLOBE.cy}
-                  r={500}
+                  r={480}
                   className="eg-anim eg-ring"
                   fill="none"
                   stroke="#7DD3FC"
@@ -403,7 +399,7 @@ export default function ExcellenceGlobe() {
                 <circle
                   cx={GLOBE.cx}
                   cy={GLOBE.cy}
-                  r={545}
+                  r={522}
                   className="eg-anim eg-ring-rev"
                   fill="none"
                   stroke="#5ED4C3"
