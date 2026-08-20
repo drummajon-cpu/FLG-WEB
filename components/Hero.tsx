@@ -15,7 +15,21 @@ export default function Hero() {
 
       {/* Ambient glow */}
       <div aria-hidden className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full bg-accent-deep/10 blur-[120px]" />
-      <div aria-hidden className="absolute bottom-0 left-1/4 w-[500px] h-[500px] rounded-full bg-teal/10 blur-[100px]" />
+      {/*
+        This teal glow used to be a blurred circle sitting flush with the
+        section's bottom edge. The section is overflow-hidden, so exactly half
+        of its gaussian was cut off — the glow stopped dead at ~50% strength
+        where TrustedBy begins, an ~8.9/255 step. A radial gradient that reaches
+        zero at the edge has nothing to clip.
+      */}
+      <div
+        aria-hidden
+        className="absolute bottom-0 left-1/4 h-[700px] w-[900px]"
+        style={{
+          background:
+            "radial-gradient(50% 50% at 50% 50%, rgba(46,185,168,0.11) 0%, rgba(46,185,168,0.055) 50%, rgba(46,185,168,0) 100%)",
+        }}
+      />
 
       {/* Scan line */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden opacity-30">
