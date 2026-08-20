@@ -63,11 +63,13 @@ type Route = { d: string; dur: number; delay: number; hue: "cyan" | "teal" };
 const ROUTES: Route[] = [
   { d: "M360 612 Q490 618 578 522", dur: 7.4, delay: 0.0, hue: "cyan" },
   { d: "M646 708 Q556 504 360 612", dur: 9.6, delay: 2.7, hue: "teal" },
+  { d: "M646 708 Q530 698 430 756", dur: 8.3, delay: 7.1, hue: "cyan" },
   { d: "M448 716 Q531 595 678 598", dur: 6.8, delay: 1.4, hue: "cyan" },
   { d: "M578 522 Q728 387 902 490", dur: 11.2, delay: 4.1, hue: "teal" },
   { d: "M970 608 Q805 423 578 522", dur: 8.6, delay: 6.3, hue: "cyan" },
   { d: "M1146 472 Q1033 606 902 490", dur: 9.4, delay: 3.2, hue: "teal" },
   { d: "M1154 758 Q1097 559 902 490", dur: 10.8, delay: 5.5, hue: "cyan" },
+  { d: "M1050 744 Q1046 590 1146 472", dur: 9.1, delay: 9.4, hue: "teal" },
 ];
 
 /** Connection nodes — the routes' endpoints, i.e. nodes actually drawn on the globe. */
@@ -83,6 +85,8 @@ const NODES: { x: number; y: number; dur: number; delay: number }[] = [
   { x: 1154, y: 758, dur: 7.3, delay: 2.2 },
   { x: 870, y: 604, dur: 6.2, delay: 3.9 },
   { x: 382, y: 820, dur: 5.6, delay: 4.7 },
+  { x: 430, y: 756, dur: 6.6, delay: 6.0 },
+  { x: 1050, y: 744, dur: 5.4, delay: 7.4 },
 ];
 
 /** Icon rings, located by annulus matching — all 13 verified against the art. */
@@ -179,6 +183,28 @@ const CAPABILITIES: {
   },
 ];
 
+/**
+ * City-light clusters, found by looking for warm bright blobs (R>150, R>B+45)
+ * on the globe disc and keeping the strongest, spaced at least 86px apart. The
+ * artwork already draws these — the overlay just lets them breathe.
+ */
+const CITIES: { x: number; y: number; r: number; dur: number; delay: number }[] = [
+  { x: 898, y: 696, r: 27, dur: 6.2, delay: 0.0 },
+  { x: 693, y: 657, r: 21, dur: 7.4, delay: 1.7 },
+  { x: 1022, y: 744, r: 21, dur: 5.8, delay: 3.1 },
+  { x: 831, y: 634, r: 16, dur: 8.1, delay: 0.8 },
+  { x: 483, y: 609, r: 15, dur: 6.7, delay: 4.4 },
+  { x: 780, y: 560, r: 14, dur: 7.0, delay: 2.3 },
+  { x: 402, y: 694, r: 11, dur: 5.5, delay: 5.6 },
+  { x: 910, y: 597, r: 10, dur: 8.6, delay: 1.2 },
+  { x: 1038, y: 648, r: 10, dur: 6.0, delay: 6.9 },
+  { x: 1104, y: 772, r: 10, dur: 7.7, delay: 3.8 },
+  { x: 436, y: 810, r: 10, dur: 6.4, delay: 2.9 },
+  { x: 598, y: 537, r: 8, dur: 5.2, delay: 7.6 },
+  { x: 1155, y: 699, r: 8, dur: 8.3, delay: 5.0 },
+  { x: 650, y: 741, r: 7, dur: 6.9, delay: 4.1 },
+];
+
 /** Distant data points, seeded only in the artwork's empty dark margins. */
 const PARTICLES: {
   x: number;
@@ -245,6 +271,7 @@ const HUE = {
  */
 function GlobeOverlay({ idPrefix }: { idPrefix: string }) {
   const glow = `${idPrefix}NodeGlow`;
+  const city = `${idPrefix}CityGlow`;
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
@@ -258,7 +285,35 @@ function GlobeOverlay({ idPrefix }: { idPrefix: string }) {
           <stop offset="45%" stopColor="#7DD3FC" stopOpacity="0.35" />
           <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0" />
         </radialGradient>
+        <radialGradient id={city}>
+          <stop offset="0%" stopColor="#FFD79A" stopOpacity="0.55" />
+          <stop offset="40%" stopColor="#FFBE6B" stopOpacity="0.24" />
+          <stop offset="100%" stopColor="#FFAE4D" stopOpacity="0" />
+        </radialGradient>
       </defs>
+
+      {/* City lights — a warm, slow breath over clusters the artwork already
+          draws. Opacity only; nothing moves. */}
+      <g>
+        {CITIES.map((c, i) => (
+          <circle
+            key={i}
+            cx={c.x}
+            cy={c.y}
+            r={c.r}
+            className="eg-anim eg-breathe"
+            fill={`url(#${city})`}
+            style={
+              {
+                "--eg-dur": `${c.dur}s`,
+                "--eg-delay": `${c.delay}s`,
+                "--eg-lo": "0.16",
+                "--eg-hi": "0.44",
+              } as CSSProperties
+            }
+          />
+        ))}
+      </g>
 
       {/* Atmosphere — a slow breath of light along the upper limb.
           Opacity only, so the globe never shifts or changes size. */}

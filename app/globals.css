@@ -146,17 +146,25 @@ body {
    prefers-reduced-motion.
    =========================================================================== */
 
-/* The artwork's own edge tone is pure black (#000000 on all four sides), while
-   the page is #05070A. Without this the image reads as a darker rectangle cut
-   into the page. Paint a matching black band behind it and fade back to the
-   page colour inside the section's vertical padding, where there is no content
-   to damage. Re-measured for the current artwork. */
+/* The artwork's own edge tone is pure black (#000000 on all four sides) while
+   the page is #05070A, so without a matching band behind it the image reads as
+   a darker rectangle cut into the page.
+
+   The black is held only for the height the artwork actually occupies, then
+   released back to the page colour with a flat run before the section ends.
+   That matters because the Contact section below opens with its own blurred
+   cyan halo (original design, there since the first commit) — handing black
+   straight to that halo is what made the boundary look like a hard colour
+   step. Letting the background settle to #05070A first gives the halo a
+   neutral runway to fade up from. */
 .eg-section {
   background: linear-gradient(
     180deg,
     #05070a 0%,
-    #000000 6%,
-    #000000 94%,
+    #05070a 4%,
+    #000000 10%,
+    #000000 89%,
+    #05070a 96%,
     #05070a 100%
   );
 }
