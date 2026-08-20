@@ -146,6 +146,40 @@ body {
    prefers-reduced-motion.
    =========================================================================== */
 
+/* The artwork is not black — its own edge tone is #000613 (no red at all, and
+   noticeably bluer than the page's #05070A). That delta is what made the image
+   read as a lighter rectangle pasted onto the page. Matching the band behind it
+   to the artwork's edge colour removes the seam outright, and the fade back to
+   the page colour happens inside the section's vertical padding, where there is
+   no content to damage. Measured margins to visible content are only ~2%, so
+   feathering the image itself was not an option. */
+.eg-section {
+  background: linear-gradient(
+    180deg,
+    #05070a 0%,
+    #000613 6%,
+    #000613 94%,
+    #05070a 100%
+  );
+}
+
+/* A flat colour cannot match all four sides: the artwork's left edge is
+   measurably brighter (0.4,10.7,26.2) than the top/right/bottom (~0,7,21). So
+   fade the outer sliver of the image and let the matched band above show
+   through — that dissolves the boundary whatever the local edge tone is.
+   1.5% is deliberate: the nearest visible content sits at 2.02% (right edge),
+   so this only ever touches empty background, never the logo, icons or text. */
+.eg-stage {
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 1.5%, #000 98.5%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 1.5%, #000 98.5%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent 0%, #000 1.5%, #000 98.5%, transparent 100%),
+    linear-gradient(to right, transparent 0%, #000 1.5%, #000 98.5%, transparent 100%);
+  mask-composite: intersect;
+}
+
 .eg-plane {
   transform: translate3d(0, 0, 0);
   will-change: transform;

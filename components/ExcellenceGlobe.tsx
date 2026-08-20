@@ -233,7 +233,7 @@ export default function ExcellenceGlobe() {
   }, []);
 
   return (
-    <section id="excellence" className="relative overflow-hidden py-20 md:py-28">
+    <section id="excellence" className="eg-section relative overflow-hidden py-20 md:py-28">
       <motion.div
         initial={{ opacity: 0, y: 26 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -244,7 +244,7 @@ export default function ExcellenceGlobe() {
         <div
           ref={stageRef}
           data-active="true"
-          className="eg-stage relative w-full overflow-hidden rounded-lg"
+          className="eg-stage relative w-full overflow-hidden"
         >
           {/* Near plane — the artwork, plus every overlay locked to its geometry. */}
           <div ref={nearRef} className="eg-plane relative">
