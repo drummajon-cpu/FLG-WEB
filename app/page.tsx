@@ -9,6 +9,7 @@ import Systems from "@/components/Systems";
 import Certifications from "@/components/Certifications";
 import About from "@/components/About";
 import FAQ from "@/components/FAQ";
+import ExcellenceGlobe from "@/components/ExcellenceGlobe";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 
@@ -26,6 +27,7 @@ export default function Home() {
       <Systems />
       <About />
       <FAQ />
+      <ExcellenceGlobe />
       <Contact />
       <Footer />
     </main>
