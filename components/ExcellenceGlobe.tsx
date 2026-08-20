@@ -1,9 +1,24 @@
 "use client";
 
 import Image from "next/image";
-import type { CSSProperties } from "react";
+import type { ComponentType, CSSProperties } from "react";
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import {
+  Award,
+  Compass,
+  Crosshair,
+  Fan,
+  Frame,
+  Gauge,
+  Hexagon,
+  Layers,
+  Plane,
+  Puzzle,
+  Shield,
+  ShieldCheck,
+  Target,
+} from "lucide-react";
 
 /**
  * ExcellenceGlobe — the "Excellence in everything we do" panorama.
@@ -16,10 +31,12 @@ import { motion } from "framer-motion";
  * The SVG overlays share that viewBox, so every tracer rides a connection path
  * that is genuinely drawn in the artwork.
  *
- * Nothing here alters the image: no added text, no crop, no recolour. Every
- * layer is transparent and pointer-events:none, and all motion pauses when the
- * section leaves the viewport, when the tab is hidden, or when the visitor
- * prefers reduced motion.
+ * On phones the raster is abandoned as a *reading* surface. Its body copy is
+ * ~14px inside a 1536px-wide image, which lands at roughly 3px on a 375px
+ * screen — unreadable at any zoom the layout allows, and invisible to screen
+ * readers. Below `xl` the section therefore re-composes: the globe is cropped
+ * out of the artwork as the visual anchor (tracers still riding it), and the
+ * headline and thirteen capabilities render as real, selectable text.
  */
 
 const VB_W = 1536;
@@ -28,11 +45,19 @@ const VB_H = 1024;
 /** Earth limb, least-squares fitted to the artwork's bright edge (~5px residual). */
 const GLOBE = { cx: 769.3, cy: 849.6, r: 438.6 };
 
+/**
+ * Mobile crop, in artwork pixels — the globe's upper hemisphere. Chosen to sit
+ * clear of every icon ring so no unreadable baked-in caption survives the crop:
+ * the bottom row starts at y=882, the side columns end at x=126 and begin at
+ * x=1178, and the top row ends at y=356.
+ */
+const CROP = { x: 340, y: 428, w: 830, h: 412 };
+
 type Route = { d: string; dur: number; delay: number; hue: "cyan" | "teal" };
 
 /**
  * Connection routes traced out of the artwork. Each is a quadratic Bezier
- * fitted against the drawn cyan strokes (>=96% of sampled points land on a
+ * fitted against the drawn cyan strokes (>=93% of sampled points land on a
  * real stroke), and rejected if it merely hugged the bright limb.
  */
 const ROUTES: Route[] = [
@@ -45,7 +70,7 @@ const ROUTES: Route[] = [
   { d: "M1154 758 Q1097 559 902 490", dur: 10.8, delay: 5.5, hue: "cyan" },
 ];
 
-/** Connection nodes — the route endpoints, i.e. nodes actually drawn on the globe. */
+/** Connection nodes — the routes' endpoints, i.e. nodes actually drawn on the globe. */
 const NODES: { x: number; y: number; dur: number; delay: number }[] = [
   { x: 360, y: 612, dur: 5.2, delay: 0.0 },
   { x: 578, y: 522, dur: 6.4, delay: 1.3 },
@@ -75,6 +100,83 @@ const ICONS: { x: number; y: number; r: number }[] = [
   { x: 634, y: 882, r: 40 },
   { x: 880, y: 882, r: 40 },
   { x: 1174, y: 890, r: 40 },
+];
+
+/**
+ * The thirteen capabilities, transcribed from the artwork. This is the mobile
+ * reading surface, so it has to stay in step with the graphic — if the artwork
+ * is ever re-rendered with different wording, update these too.
+ */
+const CAPABILITIES: {
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  body: string;
+}[] = [
+  {
+    icon: Crosshair,
+    title: "Precision in every repair",
+    body: "Exacting standards and meticulous attention to every detail.",
+  },
+  {
+    icon: Target,
+    title: "Where reliability takes off",
+    body: "Proven processes that keep your operation moving forward.",
+  },
+  {
+    icon: Award,
+    title: "Excellence engineered",
+    body: "Built-in quality from the first inspection to final release.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Confidence in every flight",
+    body: "Reliable repairs that meet or exceed OEM standards.",
+  },
+  {
+    icon: Layers,
+    title: "Mastery in composites",
+    body: "Advanced composite repairs with confidence.",
+  },
+  {
+    icon: Puzzle,
+    title: "Flight ready solutions",
+    body: "Delivering parts that are ready when you are.",
+  },
+  {
+    icon: Plane,
+    title: "Your trusted MRO partner",
+    body: "A partner you can count on, every step of the way.",
+  },
+  {
+    icon: Hexagon,
+    title: "Advanced MRO expertise",
+    body: "Decades of experience across a wide range of components.",
+  },
+  {
+    icon: Gauge,
+    title: "Flight critical expertise",
+    body: "Trusted expertise for your most critical components.",
+  },
+  {
+    icon: Frame,
+    title: "Excellence in structures",
+    body: "Structural repairs you can depend on.",
+  },
+  {
+    icon: Shield,
+    title: "Safety delivered",
+    body: "Safety is designed into everything we do.",
+  },
+  {
+    icon: Fan,
+    title: "The MRO that protects every flight",
+    body: "We protect your aircraft and your reputation.",
+  },
+  {
+    icon: Compass,
+    title: "Composite & structural precision",
+    body: "Combining advanced materials knowledge with structural precision.",
+  },
 ];
 
 /** Distant data points, seeded only in the artwork's empty dark margins. */
@@ -135,20 +237,135 @@ const HUE = {
   teal: { head: "#DFFBF5", body: "#5ED4C3" },
 } as const;
 
+/**
+ * Atmosphere, tracers and node pulses, in the artwork's own coordinate space.
+ * Rendered over both the full desktop panorama and the cropped mobile globe —
+ * because it shares the artwork's viewBox, one definition lines up with either
+ * framing. `idPrefix` keeps the two instances' gradient ids distinct.
+ */
+function GlobeOverlay({ idPrefix }: { idPrefix: string }) {
+  const glow = `${idPrefix}NodeGlow`;
+  return (
+    <svg
+      viewBox={`0 0 ${VB_W} ${VB_H}`}
+      aria-hidden="true"
+      focusable="false"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+    >
+      <defs>
+        <radialGradient id={glow}>
+          <stop offset="0%" stopColor="#E8FBFF" stopOpacity="0.85" />
+          <stop offset="45%" stopColor="#7DD3FC" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* Atmosphere — a slow breath of light along the upper limb.
+          Opacity only, so the globe never shifts or changes size. */}
+      <g>
+        <path
+          d={LIMB_ARC}
+          className="eg-anim eg-breathe"
+          fill="none"
+          stroke="#BFE9FF"
+          strokeWidth={13}
+          strokeLinecap="round"
+          style={
+            {
+              "--eg-dur": "9s",
+              "--eg-delay": "0s",
+              "--eg-lo": "0.05",
+              "--eg-hi": "0.15",
+              filter: "blur(16px)",
+            } as CSSProperties
+          }
+        />
+        <path
+          d={LIMB_ARC}
+          className="eg-anim eg-breathe"
+          fill="none"
+          stroke="#E4F6FF"
+          strokeWidth={4}
+          strokeLinecap="round"
+          style={
+            {
+              "--eg-dur": "11s",
+              "--eg-delay": "1.5s",
+              "--eg-lo": "0.06",
+              "--eg-hi": "0.2",
+              filter: "blur(5px)",
+            } as CSSProperties
+          }
+        />
+      </g>
+
+      {/* Tracers — illuminated signals riding the routes drawn in the art. */}
+      <g className="eg-tracers">
+        {ROUTES.map((route, i) =>
+          TRACER_LAYERS.map((layer, j) => (
+            <path
+              key={`${i}-${j}`}
+              d={route.d}
+              className="eg-anim eg-tracer"
+              fill="none"
+              pathLength={1000}
+              stroke={j === 0 ? HUE[route.hue].head : HUE[route.hue].body}
+              strokeWidth={layer.w}
+              strokeLinecap="round"
+              strokeDasharray={`${layer.dash} ${1000 - layer.dash}`}
+              opacity={layer.op}
+              style={
+                {
+                  "--eg-from": `${1000 + layer.lead}`,
+                  "--eg-to": `${layer.lead}`,
+                  "--eg-dur": `${route.dur}s`,
+                  "--eg-delay": `${route.delay}s`,
+                } as CSSProperties
+              }
+            />
+          )),
+        )}
+      </g>
+
+      {/* Node pulses — a slow brighten and swell of a few pixels. */}
+      <g>
+        {NODES.map((n, i) => (
+          <circle
+            key={i}
+            cx={n.x}
+            cy={n.y}
+            r={9}
+            className="eg-anim eg-node"
+            fill={`url(#${glow})`}
+            style={
+              {
+                "--eg-dur": `${n.dur}s`,
+                "--eg-delay": `${n.delay}s`,
+              } as CSSProperties
+            }
+          />
+        ))}
+      </g>
+    </svg>
+  );
+}
+
 export default function ExcellenceGlobe() {
+  const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const nearRef = useRef<HTMLDivElement>(null);
   const farRef = useRef<HTMLDivElement>(null);
 
   // Visibility gating — animations only burn frames while the section is on
-  // screen and the tab is actually being looked at.
+  // screen and the tab is actually being looked at. Bound to the section so it
+  // covers the mobile globe as well as the desktop stage.
   useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
+    const el = sectionRef.current;
+    if (!el) return;
 
     let onScreen = true;
     const sync = () => {
-      stage.dataset.active = onScreen && !document.hidden ? "true" : "false";
+      el.dataset.active = onScreen && !document.hidden ? "true" : "false";
     };
 
     const io = new IntersectionObserver(
@@ -158,7 +375,7 @@ export default function ExcellenceGlobe() {
       },
       { rootMargin: "160px 0px" },
     );
-    io.observe(stage);
+    io.observe(el);
     document.addEventListener("visibilitychange", sync);
 
     return () => {
@@ -229,18 +446,97 @@ export default function ExcellenceGlobe() {
   }, []);
 
   return (
-    <section id="excellence" className="eg-section relative overflow-hidden py-20 md:py-28">
+    <section
+      id="excellence"
+      ref={sectionRef}
+      data-active="true"
+      className="eg-section relative overflow-hidden py-20 md:py-28"
+    >
       <motion.div
         initial={{ opacity: 0, y: 26 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-        className="mx-auto w-full max-w-[1536px] px-2 sm:px-4 md:px-6"
+        className="mx-auto w-full max-w-[1536px] px-5 sm:px-6 md:px-6"
       >
+        {/* ---------------------------------------------------------------
+            Phones, tablets and small laptops — the artwork's captions are only
+            11px inside a 1536px image, so they land at ~2px here, ~5px on a
+            tablet and ~9px at 1280. Below xl the globe is cropped out as the
+            visual and the copy is set as real text instead.
+           --------------------------------------------------------------- */}
+        <div className="mx-auto max-w-5xl xl:hidden">
+          <div className="mx-auto mb-7 w-[132px]">
+            <Image
+              src="/images/flg-logo-one-mro.png"
+              alt="FLG Technics — One MRO"
+              width={420}
+              height={190}
+              className="h-auto w-full"
+            />
+          </div>
+
+          <h2 className="text-center font-display text-[clamp(1.6rem,7.2vw,2.4rem)] font-semibold uppercase leading-[1.08] tracking-[-0.02em] text-slate-50">
+            <span className="text-accent">Excellence</span> in everything we do
+          </h2>
+          <p className="mx-auto mt-3 max-w-[30rem] text-center text-[0.95rem] leading-relaxed text-slate-300">
+            Global expertise. Proven processes. Uncompromising quality.
+          </p>
+
+          {/* The globe, cropped from the artwork. The inner box carries the
+              whole 1536x1024 frame, scaled and shifted so CROP fills the
+              window — which keeps the SVG overlay perfectly in register. */}
+          <div
+            className="eg-mobile-globe relative mt-8 w-full overflow-hidden"
+            style={{ aspectRatio: `${CROP.w} / ${CROP.h}` }}
+          >
+            <div
+              className="absolute left-0 top-0"
+              style={{
+                width: `${(VB_W / CROP.w) * 100}%`,
+                aspectRatio: `${VB_W} / ${VB_H}`,
+                transform: `translate(${(-CROP.x / VB_W) * 100}%, ${(-CROP.y / VB_H) * 100}%)`,
+              }}
+            >
+              <Image
+                src="/images/excellence-globe.png"
+                alt=""
+                aria-hidden="true"
+                width={VB_W}
+                height={VB_H}
+                sizes="200vw"
+                className="block h-auto w-full select-none"
+              />
+              <GlobeOverlay idPrefix="egM" />
+            </div>
+          </div>
+
+          <ul className="mt-9 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+            {CAPABILITIES.map(({ icon: Icon, title, body }) => (
+              <li key={title} className="flex gap-3.5">
+                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-teal/40 bg-ink-900/60">
+                  <Icon className="h-[18px] w-[18px] text-teal-bright" />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="font-display text-[0.95rem] font-semibold uppercase leading-snug text-slate-50">
+                    {title}
+                  </h3>
+                  <p className="mt-1 text-[0.875rem] leading-relaxed text-slate-400">
+                    {body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ---------------------------------------------------------------
+            1280px and up — the artwork at full size, where its captions finally
+            reach a legible ~11-13px, with the overlays locked to its geometry.
+           --------------------------------------------------------------- */}
         <div
           ref={stageRef}
-          data-active="true"
-          className="eg-stage relative w-full overflow-hidden"
+          className="eg-stage relative hidden w-full overflow-hidden xl:block"
         >
           {/* Near plane — the artwork, plus every overlay locked to its geometry. */}
           <div ref={nearRef} className="eg-plane relative">
@@ -252,108 +548,7 @@ export default function ExcellenceGlobe() {
               sizes="(max-width: 1536px) 100vw, 1536px"
               className="block h-auto w-full select-none"
             />
-
-            <svg
-              viewBox={`0 0 ${VB_W} ${VB_H}`}
-              aria-hidden="true"
-              focusable="false"
-              className="pointer-events-none absolute inset-0 h-full w-full"
-            >
-              <defs>
-                <radialGradient id="egNodeGlow">
-                  <stop offset="0%" stopColor="#E8FBFF" stopOpacity="0.85" />
-                  <stop offset="45%" stopColor="#7DD3FC" stopOpacity="0.35" />
-                  <stop offset="100%" stopColor="#7DD3FC" stopOpacity="0" />
-                </radialGradient>
-              </defs>
-
-              {/* Atmosphere — a slow breath of light along the upper limb.
-                  Opacity only, so the globe never shifts or changes size. */}
-              <g>
-                <path
-                  d={LIMB_ARC}
-                  className="eg-anim eg-breathe"
-                  fill="none"
-                  stroke="#BFE9FF"
-                  strokeWidth={13}
-                  strokeLinecap="round"
-                  style={
-                    {
-                      "--eg-dur": "9s",
-                      "--eg-delay": "0s",
-                      "--eg-lo": "0.05",
-                      "--eg-hi": "0.15",
-                      filter: "blur(16px)",
-                    } as CSSProperties
-                  }
-                />
-                <path
-                  d={LIMB_ARC}
-                  className="eg-anim eg-breathe"
-                  fill="none"
-                  stroke="#E4F6FF"
-                  strokeWidth={4}
-                  strokeLinecap="round"
-                  style={
-                    {
-                      "--eg-dur": "11s",
-                      "--eg-delay": "1.5s",
-                      "--eg-lo": "0.06",
-                      "--eg-hi": "0.2",
-                      filter: "blur(5px)",
-                    } as CSSProperties
-                  }
-                />
-              </g>
-
-              {/* Tracers — illuminated signals riding the routes drawn in the art. */}
-              <g className="eg-tracers">
-                {ROUTES.map((route, i) =>
-                  TRACER_LAYERS.map((layer, j) => (
-                    <path
-                      key={`${i}-${j}`}
-                      d={route.d}
-                      className="eg-anim eg-tracer"
-                      fill="none"
-                      pathLength={1000}
-                      stroke={j === 0 ? HUE[route.hue].head : HUE[route.hue].body}
-                      strokeWidth={layer.w}
-                      strokeLinecap="round"
-                      strokeDasharray={`${layer.dash} ${1000 - layer.dash}`}
-                      opacity={layer.op}
-                      style={
-                        {
-                          "--eg-from": `${1000 + layer.lead}`,
-                          "--eg-to": `${layer.lead}`,
-                          "--eg-dur": `${route.dur}s`,
-                          "--eg-delay": `${route.delay}s`,
-                        } as CSSProperties
-                      }
-                    />
-                  )),
-                )}
-              </g>
-
-              {/* Node pulses — a slow brighten and swell of a few pixels. */}
-              <g>
-                {NODES.map((n, i) => (
-                  <circle
-                    key={i}
-                    cx={n.x}
-                    cy={n.y}
-                    r={9}
-                    className="eg-anim eg-node"
-                    fill="url(#egNodeGlow)"
-                    style={
-                      {
-                        "--eg-dur": `${n.dur}s`,
-                        "--eg-delay": `${n.delay}s`,
-                      } as CSSProperties
-                    }
-                  />
-                ))}
-              </g>
-            </svg>
+            <GlobeOverlay idPrefix="egD" />
           </div>
 
           {/* Far plane — HUD rings and distant particles, drifting against the

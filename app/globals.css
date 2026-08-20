@@ -255,8 +255,22 @@ body {
   }
 }
 
+/* The phone layout crops the globe out of the artwork, which leaves cut edges
+   mid-image. Fade the sides and base so it reads as emerging from the dark
+   rather than as a rectangle sliced out of a bigger picture. */
+.eg-mobile-globe {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%);
+  mask-composite: intersect;
+}
+
 /* Off-screen or backgrounded tab: stop spending frames entirely. */
-.eg-stage[data-active="false"] .eg-anim {
+.eg-section[data-active="false"] .eg-anim {
   animation-play-state: paused;
 }
 
