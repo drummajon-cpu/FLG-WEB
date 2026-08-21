@@ -181,6 +181,13 @@ body {
   animation: egNode var(--eg-dur) cubic-bezier(0.45, 0, 0.55, 1) var(--eg-delay) infinite;
 }
 
+/* Reduced-motion variant of the node pulse: identical brightening, but the
+   scale is pinned so nothing actually moves. */
+@keyframes egNodeCalm {
+  0%, 100% { transform: scale(1); opacity: 0.20; }
+  50%      { transform: scale(1); opacity: 0.52; }
+}
+
 /* Atmosphere — opacity only, so the globe never moves or resizes. */
 @keyframes egBreathe {
   0%, 100% { opacity: var(--eg-lo); }
@@ -253,19 +260,32 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* The site-wide rule near the top of this file already collapses every
-     animation to 0.01ms with a single iteration, so a keyframed layer would
-     snap back to its *base* style once that lone iteration ends — opacity 1,
-     i.e. bright blobs. Pin explicit resting values instead of trusting the
-     keyframe end state. */
+  /* What stops: anything that actually travels. Tracers are removed outright
+     rather than frozen, because a halted dash would sit on the arc as a stray
+     mark. */
   .eg-tracers { display: none; }
   .eg-ring,
   .eg-ring-rev,
-  .eg-particle,
-  .eg-node,
-  .eg-breathe { animation: none; }
+  .eg-particle { animation: none; }
   .eg-particle { opacity: var(--eg-hi); }
-  .eg-node { opacity: 0.34; }
-  .eg-breathe { opacity: var(--eg-lo); }
   .eg-plane { transform: none !important; }
+
+  /* What keeps going: the glows. These animate opacity only — nothing moves,
+     scales or travels — which is what "reduce motion" is asking for, rather
+     than "remove all life". The node pulse swaps to a variant with its scale
+     pinned, so only the brightening remains.
+
+     These need !important to survive the site-wide reduced-motion rule near the
+     top of this file, which forces animation-duration to 0.01ms on `*`. Both
+     declarations are !important, so the cascade is decided on specificity and
+     a class (0,1,0) beats the universal selector (0,0,0). */
+  .eg-breathe {
+    animation-duration: var(--eg-dur) !important;
+    animation-iteration-count: infinite !important;
+  }
+  .eg-node {
+    animation-name: egNodeCalm !important;
+    animation-duration: var(--eg-dur) !important;
+    animation-iteration-count: infinite !important;
+  }
 }
