@@ -146,43 +146,13 @@ body {
    prefers-reduced-motion.
    =========================================================================== */
 
-/* The artwork's own edge tone is pure black (#000000 on all four sides) while
-   the page is #05070A, so without a matching band behind it the image reads as
-   a darker rectangle cut into the page.
-
-   The black is held only for the height the artwork actually occupies, then
-   released back to the page colour with a flat run before the section ends.
-   That matters because the Contact section below opens with its own blurred
-   cyan halo (original design, there since the first commit) — handing black
-   straight to that halo is what made the boundary look like a hard colour
-   step. Letting the background settle to #05070A first gives the halo a
-   neutral runway to fade up from. */
-.eg-section {
-  background: linear-gradient(
-    180deg,
-    #05070a 0%,
-    #05070a 4%,
-    #000000 10%,
-    #000000 89%,
-    #05070a 96%,
-    #05070a 100%
-  );
-}
-
-/* Soften the boundary between the artwork and the page. 2.5% is 38px across
-   and 26px down, measured against this artwork's margins to visible content of
-   65px (left) and 42px (top) — so it only ever touches empty background, never
-   the logo, icons or text. */
-.eg-stage {
-  -webkit-mask-image:
-    linear-gradient(to bottom, transparent 0%, #000 2.5%, #000 97.5%, transparent 100%),
-    linear-gradient(to right, transparent 0%, #000 2.5%, #000 97.5%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    linear-gradient(to bottom, transparent 0%, #000 2.5%, #000 97.5%, transparent 100%),
-    linear-gradient(to right, transparent 0%, #000 2.5%, #000 97.5%, transparent 100%);
-  mask-composite: intersect;
-}
+/* No background band here on purpose. The artwork is now authored with its
+   own edges at #05070A — the page colour — so the section can simply let the
+   page show through. Earlier revisions needed a matching band (first #000613,
+   then #000000) because the artwork's edges did not match; measured, those
+   mismatches were an 8.68/255 and a 9.91/255 step. This one measures 0.00/255
+   at top, bottom and right, and 1.13/255 at left. If the artwork is ever
+   re-rendered, re-measure its edges before assuming this still holds. */
 
 .eg-plane {
   transform: translate3d(0, 0, 0);
