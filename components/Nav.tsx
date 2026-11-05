@@ -5,12 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Phone } from "lucide-react";
 import { LogoLockup, TailStreaks } from "./Logo";
 
+// The live parts-stock page (/inventory, see proxy.ts). Its tab shows only once
+// NEXT_PUBLIC_SHOW_INVENTORY_LINK=1 is set in Vercel, i.e. when the page is public.
+const showInventory = process.env.NEXT_PUBLIC_SHOW_INVENTORY_LINK === "1";
+
 const links = [
   { href: "#certifications", label: "Certifications" },
   { href: "#capabilities", label: "Capabilities" },
   { href: "#work", label: "Recent Work" },
   { href: "#shop", label: "Shop" },
   { href: "#systems", label: "Systems" },
+  ...(showInventory ? [{ href: "/inventory", label: "Live Inventory" }] : []),
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ];
@@ -48,7 +53,7 @@ export default function Nav() {
               <a
                 key={l.href}
                 href={l.href}
-                className="px-3.5 py-2 text-sm text-slate-400 hover:text-slate-100 transition-colors rounded-md"
+                className="px-2.5 xl:px-3.5 py-2 text-sm whitespace-nowrap text-slate-400 hover:text-slate-100 transition-colors rounded-md"
               >
                 {l.label}
               </a>
@@ -58,14 +63,14 @@ export default function Nav() {
           <div className="flex items-center gap-2">
             <a
               href="tel:+19543853900"
-              className="hidden xl:inline-flex press items-center gap-2 px-3.5 py-2 text-sm font-medium text-slate-300 hover:text-slate-100 rounded-md border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.04]"
+              className="hidden xl:inline-flex press items-center gap-2 px-3.5 py-2 text-sm whitespace-nowrap font-medium text-slate-300 hover:text-slate-100 rounded-md border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.04]"
             >
               <Phone className="w-3.5 h-3.5" />
               (954) 385-3900
             </a>
             <a
               href="#contact"
-              className="press hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-ink-950 bg-accent hover:bg-accent-bright rounded-md shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_8px_32px_-8px_rgba(56,189,248,0.5)]"
+              className="press hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm whitespace-nowrap font-medium text-ink-950 bg-accent hover:bg-accent-bright rounded-md shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_8px_32px_-8px_rgba(56,189,248,0.5)]"
             >
               Request a Quote
             </a>
