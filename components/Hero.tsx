@@ -6,6 +6,9 @@ import { ArrowRight, ShieldCheck, Flame } from "lucide-react";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
+// Same switch as the nav (components/Nav.tsx): set in Vercel when /inventory is public.
+const showInventory = process.env.NEXT_PUBLIC_SHOW_INVENTORY_LINK === "1";
+
 export default function Hero() {
   return (
     <section id="top" className="relative min-h-[100svh] flex items-center pt-28 pb-24 overflow-hidden">
@@ -99,11 +102,20 @@ export default function Hero() {
               <ArrowRight className="w-4 h-4" />
             </span>
           </a>
+          {/* Parts buyers go to the live inventory; repair work stays on Request a Quote.
+              Falls back to Explore Capabilities while the inventory page is not public. */}
           <a
-            href="#capabilities"
+            href={showInventory ? "/inventory" : "#capabilities"}
             className="press inline-flex items-center gap-2 px-6 py-3 rounded-full border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.05] text-slate-200 font-medium"
           >
-            Explore Capabilities
+            {showInventory ? (
+              <>
+                Search Parts Inventory
+                <ArrowRight className="w-4 h-4" aria-hidden />
+              </>
+            ) : (
+              "Explore Capabilities"
+            )}
           </a>
           <div className="hidden md:flex items-center gap-2 pl-3 ml-2 border-l border-white/10 text-sm text-slate-500">
             <ShieldCheck className="w-4 h-4 text-accent" />
