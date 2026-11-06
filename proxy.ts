@@ -57,5 +57,6 @@ export const config = {
     "/api/public/inventory/:path*",
     "/static/flg_technics_logo.png",
     "/static/live-inventory/:path*",
+    "/api/public/careers/:path*",
   ],
 };
