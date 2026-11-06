@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, PackageSearch } from "lucide-react";
 import { LogoLockup, TailStreaks } from "./Logo";
 
-// The live parts-stock page (/inventory, see proxy.ts). Its tab shows only once
+// The live parts-stock page (/inventory, see proxy.ts). Its button shows only once
 // NEXT_PUBLIC_SHOW_INVENTORY_LINK=1 is set in Vercel, i.e. when the page is public.
+// It is a button beside "Request a Quote" (repair work goes to the contact form;
+// parts buyers go to the inventory), and the first entry of the mobile menu.
 const showInventory = process.env.NEXT_PUBLIC_SHOW_INVENTORY_LINK === "1";
+const INVENTORY_HREF = "/inventory";
 
 const links = [
   { href: "#certifications", label: "Certifications" },
@@ -15,7 +18,6 @@ const links = [
   { href: "#work", label: "Recent Work" },
   { href: "#shop", label: "Shop" },
   { href: "#systems", label: "Systems" },
-  ...(showInventory ? [{ href: "/inventory", label: "Live Inventory" }] : []),
   { href: "#faq", label: "FAQ" },
   { href: "#contact", label: "Contact" },
 ];
@@ -68,6 +70,15 @@ export default function Nav() {
               <Phone className="w-3.5 h-3.5" />
               (954) 385-3900
             </a>
+            {showInventory && (
+              <a
+                href={INVENTORY_HREF}
+                className="hidden sm:inline-flex press items-center gap-2 px-3.5 py-2 text-sm whitespace-nowrap font-medium text-slate-200 hover:text-slate-100 rounded-md border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.04]"
+              >
+                <PackageSearch className="w-3.5 h-3.5 text-accent" aria-hidden />
+                Live Inventory
+              </a>
+            )}
             <a
               href="#contact"
               className="press hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm whitespace-nowrap font-medium text-ink-950 bg-accent hover:bg-accent-bright rounded-md shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_8px_32px_-8px_rgba(56,189,248,0.5)]"
@@ -106,6 +117,19 @@ export default function Nav() {
               transition={{ delay: 0.08, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
               className="p-6 flex flex-col gap-1"
             >
+              {showInventory && (
+                <motion.a
+                  href={INVENTORY_HREF}
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1, duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  className="press mb-3 inline-flex items-center justify-center gap-2 px-5 py-3 rounded-md border border-accent/40 bg-accent/10 text-lg font-medium text-slate-100"
+                >
+                  <PackageSearch className="w-5 h-5 text-accent" aria-hidden />
+                  Live Inventory
+                </motion.a>
+              )}
               {links.map((l, i) => (
                 <motion.a
                   key={l.href}
