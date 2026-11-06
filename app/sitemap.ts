@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...(showInventory
       ? [{ url: `${siteUrl}/inventory`, lastModified: now, changeFrequency: "daily" as const, priority: 0.9 }]
       : []),
+    { url: `${siteUrl}/careers`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
     { url: `${siteUrl}/sms-privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.2 },
   ];
 }

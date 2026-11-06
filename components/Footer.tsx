@@ -33,15 +33,16 @@ export default function Footer() {
             </div>
             <ul className="space-y-2.5 text-sm">
               {[
-                ["#capabilities", "Capabilities"],
-                ["#work", "Recent Work"],
-                ["#shop", "Inside The Shop"],
-                ["#in-house", "In‑House"],
-                ["#systems", "Systems"],
-                ["#certifications", "Certifications"],
-                ["#about", "About"],
-                ["#faq", "FAQ"],
-                ["#contact", "Contact"],
+                ["/#capabilities", "Capabilities"],
+                ["/#work", "Recent Work"],
+                ["/#shop", "Inside The Shop"],
+                ["/#in-house", "In‑House"],
+                ["/#systems", "Systems"],
+                ["/#certifications", "Certifications"],
+                ["/#about", "About"],
+                ["/#faq", "FAQ"],
+                ["/careers", "Careers"],
+                ["/#contact", "Contact"],
                 ["/sms-privacy", "SMS Terms & Privacy"],
               ].map(([href, label]) => (
                 <li key={href}>

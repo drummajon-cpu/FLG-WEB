@@ -12,14 +12,16 @@ import { LogoLockup, TailStreaks } from "./Logo";
 const showInventory = process.env.NEXT_PUBLIC_SHOW_INVENTORY_LINK === "1";
 const INVENTORY_HREF = "/inventory";
 
+// Root-relative ("/#…") so the same menu works from /careers as well as the home page.
 const links = [
-  { href: "#certifications", label: "Certifications" },
-  { href: "#capabilities", label: "Capabilities" },
-  { href: "#work", label: "Recent Work" },
-  { href: "#shop", label: "Shop" },
-  { href: "#systems", label: "Systems" },
-  { href: "#faq", label: "FAQ" },
-  { href: "#contact", label: "Contact" },
+  { href: "/#certifications", label: "Certifications" },
+  { href: "/#capabilities", label: "Capabilities" },
+  { href: "/#work", label: "Recent Work" },
+  { href: "/#shop", label: "Shop" },
+  { href: "/#systems", label: "Systems" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/careers", label: "Careers" },
+  { href: "/#contact", label: "Contact" },
 ];
 
 export default function Nav() {
@@ -46,16 +48,18 @@ export default function Nav() {
         }`}
       >
         <nav className="max-w-7xl mx-auto px-6 h-[88px] flex items-center justify-between">
-          <a href="#top" className="group transition-transform duration-200 ease-out">
+          <a href="/#top" className="group shrink-0 transition-transform duration-200 ease-out">
             <LogoLockup tagline={false} />
           </a>
 
-          <div className="hidden lg:flex items-center gap-1">
+          {/* Inline from xl: with eight links, the phone and Live Inventory buttons there is not
+              room below 1280px without crushing the logo, so smaller screens use the menu. */}
+          <div className="hidden xl:flex items-center">
             {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                className="px-2.5 xl:px-3.5 py-2 text-sm whitespace-nowrap text-slate-400 hover:text-slate-100 transition-colors rounded-md"
+                className="px-2 min-[1440px]:px-3 py-2 text-[13px] min-[1440px]:text-sm whitespace-nowrap text-slate-400 hover:text-slate-100 transition-colors rounded-md"
               >
                 {l.label}
               </a>
@@ -80,7 +84,7 @@ export default function Nav() {
               </a>
             )}
             <a
-              href="#contact"
+              href="/#contact"
               className="press hidden sm:inline-flex items-center gap-1.5 px-4 py-2 text-sm whitespace-nowrap font-medium text-ink-950 bg-accent hover:bg-accent-bright rounded-md shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_8px_32px_-8px_rgba(56,189,248,0.5)]"
             >
               Request a Quote
@@ -88,7 +92,7 @@ export default function Nav() {
             <button
               onClick={() => setOpen(true)}
               aria-label="Open menu"
-              className="lg:hidden press p-2 rounded-md border border-white/10 text-slate-300"
+              className="xl:hidden press p-2 rounded-md border border-white/10 text-slate-300"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -103,7 +107,7 @@ export default function Nav() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[60] bg-ink-950/95 backdrop-blur-lg md:hidden"
+            className="fixed inset-0 z-[60] bg-ink-950/95 backdrop-blur-lg xl:hidden"
           >
             <div className="flex items-center justify-between h-[88px] px-6 border-b border-white/5">
               <LogoLockup tagline={false} />
