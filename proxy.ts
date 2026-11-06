@@ -30,6 +30,18 @@ function buyerIp(request: NextRequest): string {
   return (request.headers.get("x-forwarded-for") ?? "").split(",")[0].trim();
 }
 
+// The parts system serves the inventory under /live-inventory: the page itself,
+// one page per stocked part number (/inventory/part/<slug>) and the parts sitemap.
+// The API and asset paths keep their own names.
+function targetPath(pathname: string): string {
+  if (pathname === "/inventory") return "/live-inventory";
+  if (pathname === "/inventory/sitemap-parts.xml") return "/live-inventory/sitemap-parts.xml";
+  if (pathname === "/inventory/part" || pathname.startsWith("/inventory/part/")) {
+    return "/live-inventory" + pathname.slice("/inventory".length);
+  }
+  return pathname;
+}
+
 export function proxy(request: NextRequest) {
   const origin = (process.env.INVENTORY_ORIGIN ?? "").trim().replace(/\/+$/, "");
   const secret = (process.env.INVENTORY_EDGE_SECRET ?? "").trim();
@@ -37,8 +49,7 @@ export function proxy(request: NextRequest) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const path = request.nextUrl.pathname === "/inventory" ? "/live-inventory" : request.nextUrl.pathname;
-  const target = new URL(path + request.nextUrl.search, origin);
+  const target = new URL(targetPath(request.nextUrl.pathname) + request.nextUrl.search, origin);
 
   const headers = new Headers(request.headers);
   for (const name of DROP_HEADERS) headers.delete(name);
@@ -50,10 +61,12 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Only the inventory page, its API and its own assets. Everything else on
-  // flgtechnics.com is untouched.
+  // Only the inventory page, its per-part pages and parts sitemap, its API and its
+  // own assets. Everything else on flgtechnics.com is untouched.
   matcher: [
     "/inventory",
+    "/inventory/part/:path*",
+    "/inventory/sitemap-parts.xml",
     "/api/public/inventory/:path*",
     "/static/flg_technics_logo.png",
     "/static/live-inventory/:path*",
