@@ -72,7 +72,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2.5 text-slate-400">
                 <MapPin className="w-4 h-4 mt-0.5 text-accent shrink-0" />
-                <span>2701 SW 145th Ave #200<br />Miramar, FL 33027</span>
+                <span>2701 SW 145th Ave, Ste 250<br />Miramar, FL 33027</span>
               </li>
             </ul>
           </div>
