@@ -84,9 +84,9 @@ export default function Contact() {
           <ContactCard
             icon={MapPin}
             label="Visit"
-            primary="2701 SW 145th Ave #200"
+            primary="2701 SW 145th Ave, Ste 250"
             secondary="Miramar, FL 33027"
-            href="https://maps.google.com/?q=2701+SW+145th+Ave+%23200+Miramar+FL+33027"
+            href="https://maps.google.com/?q=2701+SW+145th+Ave+Ste+250+Miramar+FL+33027"
             external
           />
         </div>
