@@ -16,15 +16,15 @@ export type CareerRole = {
 export const roles: CareerRole[] = [
   {
     key: "aircraft_mechanic",
-    title: "Aircraft Mechanic (A&P)",
+    title: "Aircraft Mechanic",
     tag: "Hiring now",
     summary:
       "Repair and overhaul flight structures, transparencies and cargo-system components in our FAA Part 145 shop. Work to the component maintenance manual, from teardown and inspection to reassembly and test.",
     requirements: [
-      "FAA A&P certificate",
       "Experience in an FAA Part 145 repair station or airline maintenance",
       "Comfortable working from CMMs, IPCs and work orders",
       "Hand-tool and precision-measurement skills",
+      "FAA A&P certificate preferred, not required",
     ],
   },
   {
