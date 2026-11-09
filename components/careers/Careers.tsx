@@ -49,7 +49,7 @@ export default function Careers() {
           <SectionHeader
             eyebrow="Careers at FLG Technics"
             title="Do the work that keeps aircraft flying."
-            description="We're hiring A&P mechanics and inspectors, plus experienced aerospace management and quality people. Join an FAA Part 145 repair station that does its own engineering, machining and welding under one roof."
+            description="We're hiring aircraft mechanics and inspectors, plus experienced aerospace management and quality people. Join an FAA Part 145 repair station that does its own engineering, machining and welding under one roof."
           />
           <motion.div
             initial={{ opacity: 0, y: 10 }}
