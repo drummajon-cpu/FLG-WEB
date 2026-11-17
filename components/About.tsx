@@ -36,7 +36,7 @@ export default function About() {
             >
               <p>
                 FLG Technics started in 1998 with a narrow focus: repairing crew seats better than
-                anyone else. Twenty‑eight years later, we are an FAA Part 145 repair station
+                anyone else. Twenty‑eight years on, the focus has grown. We are an FAA Part 145 repair station
                 specializing in flight structures, transparency, and cargo systems — serving
                 commercial and regional operators worldwide.
               </p>
