@@ -13,8 +13,10 @@ import {
   Search,
   Camera,
   ArrowUpRight,
+  Bell,
+  RefreshCw,
 } from "lucide-react";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { SectionHeader } from "./Capabilities";
 import DataStream from "./DataStream";
 
@@ -224,6 +226,8 @@ type PortalOrder = {
   events: PortalEvent[];
   initials: string;
   chat: string;
+  /** Notification that slides in partway through this order's turn. */
+  toast: string;
 };
 
 const portalOrders: PortalOrder[] = [
@@ -242,6 +246,7 @@ const portalOrders: PortalOrder[] = [
     ],
     initials: "J.R.",
     chat: "OEM bracket is discontinued — we reverse‑engineered from the scan, DER approved the 8110‑3 this morning, welding pass 3 starting now. On track for Thursday release.",
+    toast: "DER 8110‑3 uploaded to WO‑260834",
   },
   {
     id: "WO‑260912",
@@ -258,6 +263,7 @@ const portalOrders: PortalOrder[] = [
     ],
     initials: "A.M.",
     chat: "Damage is inside SRM limits, so no DER needed. Core is curing tonight; paint is booked for Monday.",
+    toast: "14 new teardown photos on WO‑260912",
   },
   {
     id: "WO‑260755",
@@ -274,6 +280,7 @@ const portalOrders: PortalOrder[] = [
     ],
     initials: "J.R.",
     chat: "Topcoat is on. Balance check after cure, release paperwork Friday.",
+    toast: "Primer inspection passed on WO‑260755",
   },
   {
     id: "WO‑260891",
@@ -290,6 +297,7 @@ const portalOrders: PortalOrder[] = [
     ],
     initials: "A.M.",
     chat: "Final inspection today. You'll see the 8130‑3 here the moment it's signed — ships tomorrow.",
+    toast: "8130‑3 ready for review on WO‑260891",
   },
   {
     id: "WO‑260947",
@@ -306,6 +314,7 @@ const portalOrders: PortalOrder[] = [
     ],
     initials: "J.R.",
     chat: "It's on our dock. Teardown starts this afternoon; photos will post here as we go.",
+    toast: "WO‑260947 received at our dock",
   },
 ];
 
@@ -372,7 +381,7 @@ function PortalMockup() {
                     {...pop}
                     transition={{ duration: 0.5, ease: EASE }}
                     className={`shrink-0 w-[220px] md:w-auto snap-start rounded-lg border p-3 transition-colors duration-500 ${
-                      isActive ? "border-accent/40 bg-accent/5" : "border-white/5 bg-white/[0.02]"
+                      isActive ? "border-accent/40 bg-accent/5 animate-card-glow" : "border-white/5 bg-white/[0.02]"
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -428,13 +437,7 @@ function PortalMockup() {
                   </div>
                   <div className="mt-1 font-medium text-slate-200 text-[13px]">{active.headline}</div>
                 </div>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
-                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-                  </span>
-                  <span className="font-mono text-[10px] text-slate-400">syncing</span>
-                </div>
+                <SyncPill />
               </div>
 
               {/* Activity feed: the live row lands first, older rows roll in under it. */}
@@ -445,7 +448,7 @@ function PortalMockup() {
                     icon={e.icon}
                     color={i === 0 ? "accent" : "slate"}
                     label={e.label}
-                    time={e.time}
+                    time={i === 0 ? <LiveClock seed={active.pct * 47} /> : e.time}
                     live={i === 0}
                     delay={reduce ? 0 : 0.15 + i * 0.12}
                     reduce={!!reduce}
@@ -458,24 +461,129 @@ function PortalMockup() {
                 <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mb-2">
                   Chat · Account team
                 </div>
-                <motion.div
-                  className="flex items-start gap-2"
-                  initial={{ opacity: 0, y: reduce ? 0 : 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: reduce ? 0 : 0.75, ease: EASE }}
-                >
-                  <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center font-mono text-[10px] text-accent shrink-0">
-                    {active.initials}
-                  </div>
-                  <div className="min-w-0 rounded-lg bg-white/[0.03] border border-white/5 px-2.5 py-1.5 text-[11px] text-slate-300">
-                    {active.chat}
-                  </div>
-                </motion.div>
+                <ChatLine initials={active.initials} text={active.chat} reduce={!!reduce} />
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
+
+      {/* A notification slides in partway through each order's turn. */}
+      <PortalToast key={step} text={active.toast} reduce={!!reduce} />
+    </div>
+  );
+}
+
+/** "Syncing" badge in the detail header: a glowing pill with a spinning sync icon. */
+function SyncPill() {
+  return (
+    <div className="animate-sync-glow flex items-center gap-1.5 shrink-0 rounded-full border border-accent/40 bg-accent/10 pl-1.5 pr-2 py-0.5">
+      <span className="relative flex h-1.5 w-1.5">
+        <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_6px_rgba(56,189,248,0.9)]" />
+      </span>
+      <RefreshCw aria-hidden className="w-2.5 h-2.5 text-accent animate-spin [animation-duration:2.6s]" />
+      <span className="font-mono text-[10px] text-accent">syncing</span>
+    </div>
+  );
+}
+
+/** Elapsed time on the live row (h:mm:ss), ticking every second. */
+function LiveClock({ seed }: { seed: number }) {
+  const [secs, setSecs] = useState(seed);
+  useEffect(() => {
+    const t = setInterval(() => setSecs((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const h = Math.floor(secs / 3600);
+  const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0");
+  const sec = String(secs % 60).padStart(2, "0");
+  return (
+    <span className="tabular-nums">
+      {h}:{m}:{sec}
+    </span>
+  );
+}
+
+/** Account-team message: a typing indicator first, then the message. */
+function ChatLine({ initials, text, reduce }: { initials: string; text: string; reduce: boolean }) {
+  const [typing, setTyping] = useState(!reduce);
+  useEffect(() => {
+    if (reduce) return;
+    const t = setTimeout(() => setTyping(false), 1500);
+    return () => clearTimeout(t);
+  }, [reduce]);
+
+  return (
+    <motion.div
+      className="flex items-start gap-2"
+      initial={{ opacity: 0, y: reduce ? 0 : 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: reduce ? 0 : 0.4, ease: EASE }}
+    >
+      <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center font-mono text-[10px] text-accent shrink-0">
+        {initials}
+      </div>
+      <AnimatePresence mode="wait" initial={false}>
+        {typing ? (
+          <motion.div
+            key="typing"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            aria-label="Typing"
+            className="rounded-lg bg-white/[0.03] border border-white/5 px-3 py-2.5 flex items-center gap-1"
+          >
+            {[0, 1, 2].map((d) => (
+              <span
+                key={d}
+                className="animate-typing-dot w-1.5 h-1.5 rounded-full bg-slate-400"
+                style={{ animationDelay: `${d * 0.18}s` }}
+              />
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="msg"
+            initial={{ opacity: 0, y: reduce ? 0 : 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: EASE }}
+            className="min-w-0 rounded-lg bg-white/[0.03] border border-white/5 px-2.5 py-1.5 text-[11px] text-slate-300"
+          >
+            {text}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/** Notification that drops down from the window bar, shown from ~2s to ~4.3s of each order's turn. */
+function PortalToast({ text, reduce }: { text: string; reduce: boolean }) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const a = setTimeout(() => setShow(true), 2000);
+    const b = setTimeout(() => setShow(false), 4300);
+    return () => {
+      clearTimeout(a);
+      clearTimeout(b);
+    };
+  }, []);
+  return (
+    <div aria-hidden className="pointer-events-none absolute top-1.5 left-1/2 -translate-x-1/2 z-10 hidden md:block">
+      <AnimatePresence>
+        {show && (
+          <motion.div
+            initial={{ opacity: 0, y: reduce ? 0 : -12, scale: reduce ? 1 : 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: reduce ? 0 : -8 }}
+            transition={{ duration: 0.35, ease: EASE }}
+            className="flex items-center gap-2 whitespace-nowrap rounded-lg border border-accent/30 bg-ink-900/95 backdrop-blur px-3 py-1.5 shadow-[0_10px_30px_-8px_rgba(56,189,248,0.35)]"
+          >
+            <Bell className="w-3.5 h-3.5 text-accent" />
+            <span className="text-[11px] text-slate-200">{text}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -492,7 +600,7 @@ function ActivityRow({
   icon: string;
   color: "accent" | "slate";
   label: string;
-  time: string;
+  time: ReactNode;
   live?: boolean;
   delay?: number;
   reduce?: boolean;
