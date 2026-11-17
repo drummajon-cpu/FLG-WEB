@@ -15,7 +15,7 @@ const INVENTORY_HREF = "/inventory";
 // Root-relative ("/#…") so the same menu works from /careers as well as the home page.
 const links = [
   { href: "/#certifications", label: "Certifications" },
-  { href: "/#capabilities", label: "Capabilities" },
+  { href: "/services", label: "Services" },
   { href: "/#work", label: "Recent Work" },
   { href: "/#shop", label: "Shop" },
   { href: "/#systems", label: "Systems" },

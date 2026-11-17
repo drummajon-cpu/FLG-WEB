@@ -12,6 +12,7 @@ import {
   Compass,
   Layers,
   Warehouse,
+  ArrowRight,
 } from "lucide-react";
 import type { ComponentType } from "react";
 
@@ -21,41 +22,50 @@ type Capability = {
   title: string;
   items: string[];
   icon: ComponentType<{ className?: string }>;
+  /** The card's service page, when it has one. */
+  href?: string;
 };
 
 const capabilities: Capability[] = [
   {
     title: "Flight Structures",
+    href: "/services/flight-control-surface-repair",
     icon: PlaneTakeoff,
     items: ["Elevators", "Slats", "Spoilers", "Wings", "Stabilizers"],
   },
   {
     title: "Doors & Access",
+    href: "/services/aircraft-doors-cargo-systems",
     icon: DoorOpen,
     items: ["Cabin doors", "Cargo bases & latches", "Blocker doors", "Landing gear doors"],
   },
   {
     title: "Propulsion Systems",
+    href: "/services/nacelle-thrust-reverser-repair",
     icon: Fan,
     items: ["Thrust reversers", "Nozzles", "Mufflers", "Exhaust systems"],
   },
   {
     title: "Nacelles & Pylons",
+    href: "/services/nacelle-thrust-reverser-repair",
     icon: Disc,
     items: ["Cowlings", "Plenums", "Air intakes", "Ram airs"],
   },
   {
     title: "Interior & Seating",
+    href: "/services/aircraft-transparencies-interiors",
     icon: Armchair,
     items: ["Crew seats", "Panels", "Transparency systems"],
   },
   {
     title: "Fuselage Components",
+    href: "/services/aircraft-transparencies-interiors",
     icon: AppWindow,
     items: ["Fuselage panels", "Windows", "Switches"],
   },
   {
     title: "Cargo Systems",
+    href: "/services/aircraft-doors-cargo-systems",
     icon: Package,
     items: ["Cargo bases", "Latches", "Containment"],
   },
@@ -66,6 +76,7 @@ const capabilities: Capability[] = [
   },
   {
     title: "Teardown & Storage",
+    href: "/services/aircraft-teardown-storage",
     icon: Warehouse,
     items: [
       "Plane‑in‑a‑box disassembly",
@@ -128,7 +139,14 @@ function CapabilityCard({ cap, index }: { cap: Capability; index: number }) {
         </div>
 
         <h3 className="mt-5 font-display text-xl font-semibold text-slate-100 tracking-tight">
-          {cap.title}
+          {cap.href ? (
+            // The link stretches over the whole card (after:inset-0) so any click opens the page.
+            <a href={cap.href} className="after:absolute after:inset-0 after:content-[''] after:rounded-[1.125rem] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-accent">
+              {cap.title}
+            </a>
+          ) : (
+            cap.title
+          )}
         </h3>
 
         <ul className="mt-3 space-y-1.5">
@@ -139,6 +157,13 @@ function CapabilityCard({ cap, index }: { cap: Capability; index: number }) {
             </li>
           ))}
         </ul>
+
+        {cap.href && (
+          <div className="mt-4 inline-flex items-center gap-1.5 text-sm text-accent font-medium">
+            Learn more
+            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+          </div>
+        )}
       </div>
     </motion.div>
   );
