@@ -10,7 +10,7 @@ const EASE = [0.23, 1, 0.32, 1] as const;
 const items = [
   {
     q: "What regulatory approvals do you hold?",
-    a: "FLG Technics operates under FAA Part 145 approval (certificate number displayed on request), with EASA and UK CAA foreign‑repair‑station approvals for work on EU‑ and UK‑registered aircraft. Certified welding is performed to AWS D17.1 — the aerospace fusion specification for titanium, stainless, and aluminum.",
+    a: "FLG Technics is an FAA Part 145 repair station (certificate F72R832X), with EASA (EASA.145.6278) and UK CAA (UK.145.50849) Part‑145 approvals for work on EU‑ and UK‑registered aircraft. Certified welding is performed to AWS D17.1 — the aerospace fusion specification for titanium, stainless, and aluminum. Copies of each certificate can be downloaded from the Certifications section above.",
   },
   {
     q: "Do you handle DER repairs and PMA parts?",

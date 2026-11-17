@@ -204,8 +204,8 @@ export default async function ServicePage({ params }: Props) {
         <div className="max-w-7xl mx-auto px-6">
           <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/10 via-ink-900/60 to-ink-900/80 p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-5">
             {[
-              ["FAA Part 145", "Certified repair station, every release documented"],
-              ["EASA & UK CAA", "Approvals for EU‑ and UK‑registered aircraft"],
+              ["FAA Part 145", "Repair station certificate F72R832X"],
+              ["EASA & UK CAA", "EASA.145.6278 · UK.145.50849"],
               ["Since 1998", "Miramar, Florida · 75,000 sq ft"],
             ].map(([t, b]) => (
               <div key={t} className="flex items-start gap-3">
