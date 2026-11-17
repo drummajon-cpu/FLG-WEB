@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import {
   Radar,
   ClipboardCheck,
@@ -137,10 +138,13 @@ export default function Systems() {
                 })}
               </ul>
 
-              <div className="mt-8 inline-flex items-center gap-2 text-sm text-accent font-medium">
-                Existing customers get access on day one
-                <ArrowUpRight className="w-4 h-4" />
-              </div>
+              <a
+                href="/#contact"
+                className="group mt-8 inline-flex items-center gap-2 text-sm text-accent font-medium hover:text-accent-bright transition-colors"
+              >
+                Contact our team to request access to your customer portal
+                <ArrowUpRight className="w-4 h-4 shrink-0 transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </a>
             </div>
 
             {/* Portal mockup */}
@@ -203,16 +207,141 @@ function FeatureCard({ feature, index }: { feature: Feature; index: number }) {
   );
 }
 
-type PortalOrder = { id: string; part: string; stage: string; pct: number; active?: boolean };
+// The portal mockup cycles through example work orders: every few seconds a new order
+// pops into the top of the list, its progress bar fills and its activity feed rolls in
+// from the top, so the window reads like a live screen. The examples are illustrative,
+// built from the components in the Recent Work section. The loop runs only while the
+// mockup is on screen; with reduced motion the orders still change, but only fade.
+type PortalEvent = { icon: string; label: string; time: string };
+type PortalOrder = {
+  id: string;
+  part: string;
+  pn: string;
+  stage: string;
+  pct: number;
+  headline: string;
+  live: string;
+  events: PortalEvent[];
+  initials: string;
+  chat: string;
+};
+
 const portalOrders: PortalOrder[] = [
-  { id: "WO‑260755", part: "767 Aileron", stage: "Paint", pct: 65 },
-  { id: "WO‑260834", part: "A330 Muffler Bracket", stage: "Welding", pct: 72, active: true },
-  { id: "WO‑260891", part: "Rudder", stage: "Final Assembly", pct: 80 },
+  {
+    id: "WO‑260834",
+    part: "A330 Muffler Bracket",
+    pn: "H2614‑9210",
+    stage: "Welding",
+    pct: 72,
+    headline: "Welding — pass 3 of 4 in progress",
+    live: "Welder M.O. clocked in (AWS D17.1)",
+    events: [
+      { icon: "✓", label: "Weld pass 2/4 complete · visual PASS", time: "18m ago" },
+      { icon: "✎", label: "DER 8110‑3 signed — repair approved", time: "1h ago" },
+      { icon: "▸", label: "CNC fixture machined from scan CAD", time: "3h ago" },
+    ],
+    initials: "J.R.",
+    chat: "OEM bracket is discontinued — we reverse‑engineered from the scan, DER approved the 8110‑3 this morning, welding pass 3 starting now. On track for Thursday release.",
+  },
+  {
+    id: "WO‑260912",
+    part: "A320 Outboard Flap",
+    pn: "D572‑25300",
+    stage: "Composite repair",
+    pct: 46,
+    headline: "Core replaced — cure cycle running",
+    live: "Tech R.D. clocked in (composite repair)",
+    events: [
+      { icon: "✓", label: "Damaged honeycomb core removed", time: "2h ago" },
+      { icon: "◉", label: "Damage mapped · tap test & NDT", time: "Yesterday" },
+      { icon: "▣", label: "14 teardown photos posted", time: "Yesterday" },
+    ],
+    initials: "A.M.",
+    chat: "Damage is inside SRM limits, so no DER needed. Core is curing tonight; paint is booked for Monday.",
+  },
+  {
+    id: "WO‑260755",
+    part: "767 Aileron",
+    pn: "113A1000‑6",
+    stage: "Paint",
+    pct: 65,
+    headline: "Topcoat applied — curing",
+    live: "Painter L.S. clocked in (topcoat)",
+    events: [
+      { icon: "✓", label: "Primer inspection · PASS", time: "4h ago" },
+      { icon: "✓", label: "Skin repair signed off by inspector", time: "Yesterday" },
+      { icon: "▸", label: "Surface stripped to bare metal", time: "2d ago" },
+    ],
+    initials: "J.R.",
+    chat: "Topcoat is on. Balance check after cure, release paperwork Friday.",
+  },
+  {
+    id: "WO‑260891",
+    part: "Rudder",
+    pn: "A55‑1300‑01",
+    stage: "Final inspection",
+    pct: 92,
+    headline: "Final inspection — 8130‑3 in preparation",
+    live: "Inspector K.P. reviewing work package",
+    events: [
+      { icon: "✓", label: "Balance check · within limits", time: "1h ago" },
+      { icon: "✓", label: "Final paint inspection · PASS", time: "5h ago" },
+      { icon: "▤", label: "Material certs linked to WO", time: "Yesterday" },
+    ],
+    initials: "A.M.",
+    chat: "Final inspection today. You'll see the 8130‑3 here the moment it's signed — ships tomorrow.",
+  },
+  {
+    id: "WO‑260947",
+    part: "Vertical Leading Edge",
+    pn: "118‑31200",
+    stage: "Receiving",
+    pct: 8,
+    headline: "Unit received — incoming inspection",
+    live: "Receiving logged unit + paperwork",
+    events: [
+      { icon: "▣", label: "Arrival photos posted (6)", time: "12m ago" },
+      { icon: "✎", label: "Quote approved by customer", time: "Yesterday" },
+      { icon: "◷", label: "Same‑day written quote sent", time: "2d ago" },
+    ],
+    initials: "J.R.",
+    chat: "It's on our dock. Teardown starts this afternoon; photos will post here as we go.",
+  },
 ];
 
+const CYCLE_MS = 4800;
+const VISIBLE_ORDERS = 3;
+
 function PortalMockup() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: "-60px" });
+  const reduce = useReducedMotion();
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    const t = setInterval(() => setStep((n) => n + 1), CYCLE_MS);
+    return () => clearInterval(t);
+  }, [inView]);
+
+  const count = portalOrders.length;
+  const active = portalOrders[step % count];
+  // Newest first: the active order on top, the ones before it below.
+  const list = Array.from({ length: VISIBLE_ORDERS }, (_, i) => portalOrders[(((step - i) % count) + count) % count]);
+
+  const pop = reduce
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { opacity: 0, y: -14, scale: 0.97 },
+        animate: { opacity: 1, y: 0, scale: 1 },
+        exit: { opacity: 0, y: 14, scale: 0.97 },
+      };
+
   return (
-    <div className="relative rounded-2xl border border-white/10 bg-ink-950/90 overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]">
+    <div
+      ref={ref}
+      className="relative rounded-2xl border border-white/10 bg-ink-950/90 overflow-hidden shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
+    >
       {/* Browser chrome */}
       <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/5 bg-ink-900/70">
         <div className="flex items-center gap-1.5">
@@ -230,98 +359,121 @@ function PortalMockup() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-3 p-4 md:p-5 md:min-h-[340px]">
         {/* Orders — horizontal snap-scroll on mobile, vertical column on md+ */}
         <div className="md:col-span-2">
-          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mb-2">
-            Active orders
-          </div>
+          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mb-2">Active orders</div>
           {/* Negative margin + padding lets the carousel bleed to the card edge on mobile */}
-          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none -mx-4 md:mx-0 px-4 md:px-0 pb-1 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {portalOrders.map((r) => (
-              <div
-                key={r.id}
-                className={`shrink-0 w-[220px] md:w-auto snap-start rounded-lg border p-3 ${
-                  r.active
-                    ? "border-accent/40 bg-accent/5"
-                    : "border-white/5 bg-white/[0.02]"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="font-mono text-[10px] tracking-wider text-slate-500">{r.id}</div>
-                  {r.active && (
-                    <span className="font-mono text-[9px] tracking-wider uppercase text-accent px-1.5 py-0.5 rounded bg-accent/10">
-                      Live
-                    </span>
-                  )}
-                </div>
-                <div className="mt-1.5 font-medium text-slate-200 text-[13px]">
-                  {r.part}
-                </div>
-                <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">
+          <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-hidden snap-x snap-mandatory md:snap-none -mx-4 md:mx-0 px-4 md:px-0 pb-1 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <AnimatePresence initial={false} mode="popLayout">
+              {list.map((r, i) => {
+                const isActive = i === 0;
+                return (
                   <motion.div
-                    className={`relative h-full overflow-hidden ${r.active ? "bg-accent" : "bg-accent/50"}`}
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${r.pct}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1.1, delay: 0.2, ease: EASE }}
+                    key={r.id}
+                    layout={!reduce}
+                    {...pop}
+                    transition={{ duration: 0.5, ease: EASE }}
+                    className={`shrink-0 w-[220px] md:w-auto snap-start rounded-lg border p-3 transition-colors duration-500 ${
+                      isActive ? "border-accent/40 bg-accent/5" : "border-white/5 bg-white/[0.02]"
+                    }`}
                   >
-                    {r.active && (
-                      <span
-                        aria-hidden
-                        className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-bar-shimmer"
-                      />
-                    )}
+                    <div className="flex items-center justify-between">
+                      <div className="font-mono text-[10px] tracking-wider text-slate-500">{r.id}</div>
+                      {isActive && (
+                        <span className="font-mono text-[9px] tracking-wider uppercase text-accent px-1.5 py-0.5 rounded bg-accent/10">
+                          Live
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1.5 font-medium text-slate-200 text-[13px]">{r.part}</div>
+                    <div className="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">
+                      <motion.div
+                        className={`relative h-full overflow-hidden ${isActive ? "bg-accent" : "bg-accent/50"}`}
+                        initial={{ width: isActive ? `${Math.max(r.pct - 18, 2)}%` : `${r.pct}%` }}
+                        animate={{ width: `${r.pct}%` }}
+                        transition={{ duration: reduce ? 0 : 2.4, delay: 0.3, ease: EASE }}
+                      >
+                        {isActive && (
+                          <span
+                            aria-hidden
+                            className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/60 to-transparent animate-bar-shimmer"
+                          />
+                        )}
+                      </motion.div>
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between text-[10px]">
+                      <span className="text-slate-500">{r.stage}</span>
+                      <span className="text-slate-400">{r.pct}%</span>
+                    </div>
                   </motion.div>
-                </div>
-                <div className="mt-1.5 flex items-center justify-between text-[10px]">
-                  <span className="text-slate-500">{r.stage}</span>
-                  <span className="text-slate-400">{r.pct}%</span>
-                </div>
-              </div>
-            ))}
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
 
         {/* Detail pane */}
-        <div className="md:col-span-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 flex flex-col">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="font-mono text-[10px] tracking-wider text-slate-500 truncate">
-                WO‑260834 · A330 Muffler Bracket · PN H2614‑9210
+        <div className="md:col-span-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 flex flex-col overflow-hidden">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={active.id}
+              initial={{ opacity: 0, y: reduce ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: reduce ? 0 : -8 }}
+              transition={{ duration: 0.35, ease: EASE }}
+              className="flex flex-col flex-1"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-mono text-[10px] tracking-wider text-slate-500 truncate">
+                    {active.id} · {active.part} · PN {active.pn}
+                  </div>
+                  <div className="mt-1 font-medium text-slate-200 text-[13px]">{active.headline}</div>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
+                  </span>
+                  <span className="font-mono text-[10px] text-slate-400">syncing</span>
+                </div>
               </div>
-              <div className="mt-1 font-medium text-slate-200 text-[13px]">
-                Welding — pass 3 of 4 in progress
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
-              </span>
-              <span className="font-mono text-[10px] text-slate-400">syncing</span>
-            </div>
-          </div>
 
-          {/* Activity feed — reverse-engineered muffler bracket story */}
-          <div className="mt-3 space-y-2 text-[11px]">
-            <ActivityRow icon="●" color="accent" label="Welder M.O. clocked in (AWS D17.1)" time="live" live />
-            <ActivityRow icon="✓" color="slate" label="Weld pass 2/4 complete · visual PASS" time="18m ago" />
-            <ActivityRow icon="✎" color="slate" label="DER 8110‑3 signed — repair approved" time="1h ago" />
-            <ActivityRow icon="▸" color="slate" label="CNC fixture machined from scan CAD" time="3h ago" />
-          </div>
+              {/* Activity feed: the live row lands first, older rows roll in under it. */}
+              <div className="mt-3 space-y-2 text-[11px]">
+                {[{ icon: "●", label: active.live, time: "live" }, ...active.events].map((e, i) => (
+                  <ActivityRow
+                    key={e.label}
+                    icon={e.icon}
+                    color={i === 0 ? "accent" : "slate"}
+                    label={e.label}
+                    time={e.time}
+                    live={i === 0}
+                    delay={reduce ? 0 : 0.15 + i * 0.12}
+                    reduce={!!reduce}
+                  />
+                ))}
+              </div>
 
-          {/* Chat stub */}
-          <div className="mt-auto pt-3 border-t border-white/5">
-            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mb-2">
-              Chat · Account team
-            </div>
-            <div className="flex items-start gap-2">
-              <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center font-mono text-[10px] text-accent shrink-0">
-                J.R.
+              {/* Chat */}
+              <div className="mt-auto pt-3 border-t border-white/5">
+                <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 mb-2">
+                  Chat · Account team
+                </div>
+                <motion.div
+                  className="flex items-start gap-2"
+                  initial={{ opacity: 0, y: reduce ? 0 : 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: reduce ? 0 : 0.75, ease: EASE }}
+                >
+                  <div className="w-6 h-6 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center font-mono text-[10px] text-accent shrink-0">
+                    {active.initials}
+                  </div>
+                  <div className="min-w-0 rounded-lg bg-white/[0.03] border border-white/5 px-2.5 py-1.5 text-[11px] text-slate-300">
+                    {active.chat}
+                  </div>
+                </motion.div>
               </div>
-              <div className="min-w-0 rounded-lg bg-white/[0.03] border border-white/5 px-2.5 py-1.5 text-[11px] text-slate-300">
-                OEM bracket is discontinued — we reverse‑engineered from the scan, DER approved the 8110‑3 this morning, welding pass 3 starting now. On track for Thursday release.
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>
@@ -334,15 +486,22 @@ function ActivityRow({
   label,
   time,
   live,
+  delay = 0,
+  reduce = false,
 }: {
   icon: string;
   color: "accent" | "slate";
   label: string;
   time: string;
   live?: boolean;
+  delay?: number;
+  reduce?: boolean;
 }) {
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: reduce ? 0 : -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay, ease: EASE }}
       className={`flex items-center justify-between px-2 py-1.5 rounded border ${
         live ? "animate-live-row" : "border-white/5 bg-white/[0.02]"
       }`}
@@ -363,6 +522,6 @@ function ActivityRow({
       <span className={`font-mono text-[9px] shrink-0 ${live ? "text-accent" : "text-slate-500"}`}>
         {time}
       </span>
-    </div>
+    </motion.div>
   );
 }

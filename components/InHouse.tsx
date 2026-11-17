@@ -13,11 +13,13 @@ type Pillar = {
   description: string;
   icon: ComponentType<{ className?: string }>;
   bullets: string[];
+  href: string;
 };
 
 const pillars: Pillar[] = [
   {
     title: "In‑House Engineering & DER",
+    href: "/services/der-repair-engineering",
     tag: "FAA DER authority",
     description:
       "Design, stress, and structural engineering under one roof — with FAA Designated Engineering Representative authority for repair approvals. We take repairs from concept through DER‑signed 8110‑3 release, no outsourcing, no delays.",
@@ -26,6 +28,7 @@ const pillars: Pillar[] = [
   },
   {
     title: "PMA Development",
+    href: "/services/pma-parts-development",
     tag: "FAA approved parts",
     description:
       "End‑to‑end Parts Manufacturer Approval — from identifying the opportunity through FAA submission, testing, and steady‑state production. Often paired with reverse engineering and in‑house machining to close the loop.",
@@ -34,6 +37,7 @@ const pillars: Pillar[] = [
   },
   {
     title: "AWS D17.1 Welding",
+    href: "/services/aws-d17-1-welding",
     tag: "Aerospace certified",
     description:
       "Certified welding of titanium, stainless, and aluminum under AWS D17.1 — the aerospace fusion welding specification. Manual TIG, procedure‑controlled, and NDT‑verified. Used anywhere structural heat joins are required.",
@@ -114,7 +118,9 @@ function PillarCard({ pillar, index, featured }: { pillar: Pillar; index: number
         </div>
 
         <h3 className="mt-6 font-display text-2xl font-semibold text-slate-100 tracking-tight">
-          {pillar.title}
+          <a href={pillar.href} className="after:absolute after:inset-0 after:content-[''] after:rounded-[1.4rem] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-accent">
+            {pillar.title}
+          </a>
         </h3>
         <p className="mt-3 text-slate-400 leading-relaxed">{pillar.description}</p>
 

@@ -33,6 +33,7 @@ export default function Footer() {
             </div>
             <ul className="space-y-2.5 text-sm">
               {[
+                ["/services", "Services"],
                 ["/#capabilities", "Capabilities"],
                 ["/#work", "Recent Work"],
                 ["/#shop", "Inside The Shop"],
