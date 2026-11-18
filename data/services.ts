@@ -457,6 +457,262 @@ export const services: Service[] = [
     ],
     related: ["flight-control-surface-repair", "nacelle-thrust-reverser-repair", "der-repair-engineering"],
   },
+  {
+    slug: "aircraft-composite-repair",
+    name: "Composite Repair",
+    heading: "Aircraft composite repair",
+    title: "Aircraft Composite Repair | CFRP & Honeycomb | FLG Technics",
+    description:
+      "FAA Part 145 composite repair of CFRP skins and honeycomb core on flaps, ailerons, rudders and fairings. Miramar, FL, serving Miami and Fort Lauderdale.",
+    summary: "Carbon‑fibre (CFRP) skins, Nomex and aluminium honeycomb core, bonded flight structures.",
+    intro: [
+      "FLG Technics repairs composite flight structures every week: carbon‑fibre (CFRP) skins over aluminium and Nomex honeycomb on flaps, ailerons, rudders, leading edges and fairings.",
+      "Our FAA Part 145 repair station is in Miramar, Florida, between Miami and Fort Lauderdale. All composite work is done under our FAA, EASA and UK CAA approvals, with in‑house engineering and DER authority when damage goes beyond the manual.",
+    ],
+    components: [
+      "Flaps and flap fairings",
+      "Ailerons and spoilers",
+      "Rudders and elevators",
+      "Leading edges",
+      "Stabilizer skins",
+      "Bonded honeycomb panels",
+    ],
+    details: [
+      {
+        title: "CFRP and honeycomb core",
+        body: "Damaged honeycomb core is removed and replaced, and carbon‑fibre skins are laid up and cured back to the approved repair scheme, on Airbus and Boeing surfaces alike.",
+      },
+      {
+        title: "Damage mapped, not guessed",
+        body: "Structured‑light 3D scanning maps surface damage, wear and deformation to sub‑millimetre precision, so inspection findings become real measurements.",
+      },
+      {
+        title: "Beyond SRM limits",
+        body: "When composite damage falls outside the SRM or CMM, our in‑house engineers develop the repair and our FAA DER approves it on an 8110‑3, without the unit leaving the building.",
+      },
+      {
+        title: "Tracked stage by stage",
+        body: "Every unit is visible in the customer portal: teardown photos, core removal, lay‑up, inspection and release documents as they're signed.",
+      },
+    ],
+    images: [
+      {
+        src: "/images/work/A320 Outboard Flap.jpg",
+        alt: "Airbus A320 outboard flap after composite repair at FLG Technics",
+        caption: "Airbus A320 outboard flap · CFRP, aluminium honeycomb",
+      },
+      {
+        src: "/images/work/A330 Inboard Flap.jpg",
+        alt: "Airbus A330 inboard flap after composite repair at FLG Technics",
+        caption: "Airbus A330 inboard flap · CFRP, aluminium honeycomb",
+      },
+    ],
+    faqs: [
+      {
+        q: "What composite materials do you repair?",
+        a: "Carbon‑fibre (CFRP) skins over aluminium and Nomex honeycomb core, the construction used on most modern flaps, ailerons, rudders and fairings.",
+      },
+      {
+        q: "Where are you located?",
+        a: "2701 SW 145th Ave, Ste 250, Miramar, Florida 33027, in South Florida between Miami and Fort Lauderdale. We also take units shipped in from operators worldwide.",
+      },
+      {
+        q: "How quickly do you quote?",
+        a: "Standard RFQs typically receive a written quote the same business day.",
+      },
+    ],
+    related: ["flight-control-surface-repair", "airframe-structural-repair", "der-repair-engineering"],
+  },
+  {
+    slug: "airframe-structural-repair",
+    name: "Airframe & Sheet Metal Repair",
+    heading: "Airframe structural and sheet metal repair",
+    title: "Airframe Structural & Sheet Metal Repair | FLG Technics",
+    description:
+      "Airframe structural and aerospace sheet metal repair: aluminium 2024‑T3, titanium fittings, wing and stabilizer structures. FAA Part 145 MRO in Miramar, FL.",
+    summary: "Aluminium 2024‑T3 structures, titanium fittings, wing and stabilizer structures, CNC‑machined details.",
+    intro: [
+      "Alongside composites, FLG Technics repairs metallic airframe structures: aluminium 2024‑T3 skins and ribs, titanium fittings, wing and stabilizer structures, doors and cargo components.",
+      "75,000 sq ft of structure work sits under one roof in Miramar, Florida, with engineering, CNC machining, certified welding, inspection and release all in‑house.",
+    ],
+    components: [
+      "Wing structures",
+      "Horizontal and vertical stabilizers",
+      "Leading edges",
+      "Doors and hatches",
+      "Cargo system structures",
+      "Titanium and aluminium fittings",
+    ],
+    details: [
+      {
+        title: "Sheet metal and structures",
+        body: "Aluminium 2024‑T3 structures and titanium fittings are repaired to the SRM and CMM, or to a DER‑approved repair when damage goes beyond them.",
+      },
+      {
+        title: "In‑house CNC machining",
+        body: "Fixtures, tooling and replacement details are machined on our own CNC equipment, so a missing part doesn't stall the repair.",
+      },
+      {
+        title: "Certified welding",
+        body: "Where a structure needs welding, our certified welders work to AWS D17.1 on titanium, stainless and aluminium, NDT‑verified.",
+      },
+      {
+        title: "Engineering on the same floor",
+        body: "Design, stress and structural engineering sit next to the shop, with FAA DER authority for 8110‑3 repair approvals.",
+      },
+    ],
+    images: [
+      {
+        src: "/images/work/Vertical Leading Edge.jpg",
+        alt: "Vertical stabilizer leading edge after structural repair at FLG Technics",
+        caption: "Vertical stabilizer leading edge · Al 2024‑T3",
+      },
+      {
+        src: "/images/work/767 Aileron.jpg",
+        alt: "Boeing 767 aileron after structural repair at FLG Technics",
+        caption: "Boeing 767 aileron · Al 2024‑T3, CFRP skin",
+      },
+    ],
+    faqs: [
+      {
+        q: "Which aircraft types do you support?",
+        a: `Commercial and regional jets: ${AIRCRAFT}`,
+      },
+      {
+        q: "Can you make a part that's no longer available?",
+        a: "Yes. We can reverse‑engineer it from a 3D scan, machine it in‑house and have the repair approved by our FAA DER, or develop a PMA replacement.",
+      },
+      {
+        q: "Do you support AOG events?",
+        a: "Yes. Our AOG desk is staffed 24/7 at (754) 544‑1991.",
+      },
+    ],
+    related: ["aircraft-composite-repair", "aws-d17-1-welding", "der-repair-engineering"],
+  },
+  {
+    slug: "airbus-component-repair",
+    name: "Airbus Component Repair",
+    heading: "Airbus component and structure repair",
+    title: "Airbus A320, A330 & A350 Component Repair | FLG Technics",
+    description:
+      "Repair of Airbus A320 family, A330 and A350 flaps, flight controls, nacelles and APU exhausts. FAA, EASA and UK CAA Part 145. Miramar, near Miami, FL.",
+    summary: "A320 family, A330 and A350 flight controls, nacelles, APU exhausts and structures.",
+    intro: [
+      "FLG Technics repairs structural components for the Airbus A320 family, A330 and A350, from flight control surfaces to nacelle parts and APU exhaust systems.",
+      "With EASA (EASA.145.6278) and UK CAA approvals alongside our FAA Part 145 certificate, we release work for EU‑ and UK‑registered Airbus fleets as well as US operators, from our facility in Miramar, Florida, near Miami.",
+    ],
+    components: [
+      "A320 family flaps and flight controls",
+      "A330 inboard and outboard flaps",
+      "Ailerons, spoilers and rudders",
+      "Nacelle and thrust reverser parts",
+      "APU mufflers and brackets",
+      "Leading edges and stabilizer structures",
+    ],
+    details: [
+      {
+        title: "Airbus engineering support",
+        body: "Our in‑house engineering team supports Airbus repairs, with FAA DER authority to approve repairs that fall outside the SRM or CMM.",
+      },
+      {
+        title: "Obsolete parts, solved",
+        body: "When an OEM bracket for an A330 APU muffler was discontinued, we reverse‑engineered it from a 3D scan, machined it in‑house and got the repair DER‑approved on an 8110‑3.",
+      },
+      {
+        title: "EASA and UK CAA release",
+        body: "Our EASA Part‑145 and UK CAA approvals let us release work for EU‑ and UK‑registered aircraft, not just N‑registered fleets.",
+      },
+    ],
+    images: [
+      {
+        src: "/images/work/A320 Outboard Flap.jpg",
+        alt: "Airbus A320 outboard flap repaired at FLG Technics",
+        caption: "Airbus A320 outboard flap · CFRP, aluminium honeycomb",
+      },
+      {
+        src: "/images/work/A330 Muffler.jpg",
+        alt: "Airbus A330 APU muffler repaired at FLG Technics",
+        caption: "Airbus A330 APU muffler · Inconel, titanium flange",
+      },
+    ],
+    faqs: [
+      {
+        q: "Are you approved for EU‑registered Airbus aircraft?",
+        a: "Yes. FLG Technics holds EASA Part‑145 approval EASA.145.6278 and UK CAA approval UK.145.50849, alongside FAA Part 145 certificate F72R832X.",
+      },
+      {
+        q: "Where are you located?",
+        a: "Miramar, Florida, in South Florida between Miami and Fort Lauderdale. Units are also shipped in from operators worldwide.",
+      },
+      {
+        q: "How quickly do you quote?",
+        a: "Standard RFQs typically receive a written quote the same business day.",
+      },
+    ],
+    related: ["boeing-component-repair", "flight-control-surface-repair", "nacelle-thrust-reverser-repair"],
+  },
+  {
+    slug: "boeing-component-repair",
+    name: "Boeing Component Repair",
+    heading: "Boeing component and structure repair",
+    title: "Boeing 737, 757, 767 & 777 Component Repair | FLG Technics",
+    description:
+      "Repair of Boeing 737, 747, 757, 767 and 777 flaps, ailerons, rudders, leading edges and nacelle parts. FAA Part 145 repair station in Miramar, FL.",
+    summary: "737, 747, 757, 767 and 777 flight controls, leading edges, nacelles and structures.",
+    intro: [
+      "FLG Technics repairs structural components for the Boeing 737, 747, 757, 767 and 777: flaps, ailerons, rudders, elevators, leading edges, nacelle parts and cargo system structures.",
+      "Our FAA Part 145 repair station is in Miramar, Florida, near Miami, with in‑house engineering, DER approvals, CNC machining and AWS D17.1 welding on one floor.",
+    ],
+    components: [
+      "767 ailerons and outboard flaps",
+      "737 and 757 flight controls",
+      "777 flaps and spoilers",
+      "Rudders and elevators",
+      "Leading edges",
+      "Nacelle and thrust reverser parts",
+    ],
+    details: [
+      {
+        title: "Metallic and composite",
+        body: "Aluminium 2024‑T3 structures, CFRP skins and titanium fittings: the mix of materials on Boeing control surfaces, all repaired in‑house.",
+      },
+      {
+        title: "DER approvals in‑house",
+        body: "When damage falls outside the SRM or CMM, our engineers develop the repair and our FAA DER signs the 8110‑3.",
+      },
+      {
+        title: "Live status",
+        body: "Every unit is tracked stage by stage in the customer portal, with photos, findings and documents as they're signed.",
+      },
+    ],
+    images: [
+      {
+        src: "/images/work/767 Aileron.jpg",
+        alt: "Boeing 767 aileron repaired at FLG Technics",
+        caption: "Boeing 767 aileron · Al 2024‑T3, CFRP skin",
+      },
+      {
+        src: "/images/work/767 Outboard Flap.jpg",
+        alt: "Boeing 767 outboard flap repaired at FLG Technics",
+        caption: "Boeing 767 outboard flap",
+      },
+    ],
+    faqs: [
+      {
+        q: "Which Boeing types do you repair?",
+        a: "Boeing 737, 747, 757, 767 and 777 components, along with Airbus and regional types.",
+      },
+      {
+        q: "Do you support AOG events?",
+        a: "Yes. Our AOG desk is staffed 24/7 at (754) 544‑1991.",
+      },
+      {
+        q: "How quickly do you quote?",
+        a: "Standard RFQs typically receive a written quote the same business day.",
+      },
+    ],
+    related: ["airbus-component-repair", "flight-control-surface-repair", "airframe-structural-repair"],
+  },
 ];
 
 export function getService(slug: string): Service | undefined {

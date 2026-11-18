@@ -29,7 +29,7 @@ const ogImage = `${siteUrl}/og-image-v3.png`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "FLG Technics — Aerospace MRO, Engineering & PMA",
+  title: "FLG Technics — Aircraft MRO & Composite Repair · Miramar, FL",
   // Starts with the company name as a full sentence. When the description
   // doesn't read as one, Google ignores it and quotes body copy mid-sentence
   // instead (it was showing "we are an FAA Part 145 repair station…").
