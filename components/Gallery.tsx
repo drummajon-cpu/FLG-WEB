@@ -2,80 +2,69 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { SectionHeader } from "./Capabilities";
+import { galleryCopy, type GalleryWorkId } from "@/data/home/sections-b";
+import type { Locale } from "@/lib/i18n";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
 type Work = {
+  id: GalleryWorkId;
   src: string;
-  silhouette: "aileron" | "flap" | "rudder" | "inlet" | "leading-edge" | "muffler";
-  aircraft: string;
-  component: string;
+  silhouette: "aileron" | "flap" | "rudder" | "leading-edge" | "muffler";
   partNo: string;
-  material: string;
 };
+
+type GalleryStrings = (typeof galleryCopy)[Locale];
 
 const works: Work[] = [
   {
+    id: "a320-outboard-flap",
     src: "/images/work/cutout/A320 Outboard Flap.png",
     silhouette: "flap",
-    aircraft: "Airbus A320",
-    component: "Outboard Flap",
     partNo: "D572‑25300",
-    material: "CFRP · Al honeycomb",
   },
   {
+    id: "767-aileron",
     src: "/images/work/cutout/767 Aileron.png",
     silhouette: "aileron",
-    aircraft: "Boeing 767",
-    component: "Aileron",
     partNo: "113A1000‑6",
-    material: "Al 2024‑T3 · CFRP skin",
   },
   {
+    id: "a330-inboard-flap",
     src: "/images/work/cutout/A330 Inboard Flap.png",
     silhouette: "flap",
-    aircraft: "Airbus A330",
-    component: "Inboard Flap",
     partNo: "D573‑41016",
-    material: "CFRP · Al honeycomb",
   },
   {
+    id: "767-outboard-flap",
     src: "/images/work/cutout/767 Outboard Flap.png",
     silhouette: "flap",
-    aircraft: "Boeing 767",
-    component: "Outboard Flap",
     partNo: "113T3102‑4",
-    material: "Al 2024 · Nomex core",
   },
   {
+    id: "a330-apu-muffler",
     src: "/images/work/cutout/A330 Muffler.png",
     silhouette: "muffler",
-    aircraft: "Airbus A330",
-    component: "APU Muffler",
     partNo: "H2614‑9210",
-    material: "Inconel · Ti flange",
   },
   {
+    id: "rudder",
     src: "/images/work/cutout/Rudder.png",
     silhouette: "rudder",
-    aircraft: "Empennage",
-    component: "Rudder",
     partNo: "A55‑1300‑01",
-    material: "CFRP · Ti fittings",
   },
   {
+    id: "vertical-leading-edge",
     src: "/images/work/cutout/Vertical Leading Edge.png",
     silhouette: "leading-edge",
-    aircraft: "Vertical Stabilizer",
-    component: "Leading Edge",
     partNo: "118‑31200",
-    material: "Al 2024‑T3",
   },
 ];
 
-export default function Gallery() {
+export default function Gallery({ locale = "en" }: { locale?: Locale }) {
+  const t = galleryCopy[locale];
   const [feature, ...rest] = works;
 
   return (
@@ -83,21 +72,17 @@ export default function Gallery() {
       <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-transparent via-ink-900/30 to-transparent" />
 
       <div className="relative max-w-7xl mx-auto px-6">
-        <SectionHeader
-          eyebrow="Recent Work"
-          title="The finish is the first thing QC checks."
-          description="A selection of recently completed flight control surfaces, flaps, rudders, and exhaust components — stripped, repaired, inspected, and released from our South Florida facility."
-        />
+        <SectionHeader eyebrow={t.eyebrow} title={t.title} description={t.description} />
 
         {/* Feature card */}
         <motion.div
-          initial={{ opacity: 0, y: 28, filter: "blur(10px)" }}
-          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.9, ease: EASE }}
           className="mt-16"
         >
-          <BlueprintCard work={feature} feature />
+          <BlueprintCard work={feature} t={t} feature />
         </motion.div>
 
         {/* Grid */}
@@ -105,12 +90,12 @@ export default function Gallery() {
           {rest.map((w, i) => (
             <motion.div
               key={w.src}
-              initial={{ opacity: 0, y: 24, filter: "blur(8px)" }}
-              whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.8, delay: Math.min(i * 0.08, 0.4), ease: EASE }}
             >
-              <BlueprintCard work={w} />
+              <BlueprintCard work={w} t={t} />
             </motion.div>
           ))}
         </div>
@@ -119,10 +104,11 @@ export default function Gallery() {
   );
 }
 
-function BlueprintCard({ work, feature }: { work: Work; feature?: boolean }) {
+function BlueprintCard({ work, t, feature }: { work: Work; t: GalleryStrings; feature?: boolean }) {
   const aspect = feature ? "aspect-[21/9]" : "aspect-[4/3]";
+  const item = t.items[work.id];
   return (
-    <figure className="group relative">
+    <div className="group relative">
       {/* Outer shell — machined tray: hairline ring, soft ambient shadow,
           magnetic lift + accent glow on hover */}
       <div
@@ -130,74 +116,77 @@ function BlueprintCard({ work, feature }: { work: Work; feature?: boolean }) {
           feature ? "rounded-[2rem] p-2" : "rounded-[1.5rem] p-1.5"
         } bg-white/[0.03] ring-1 ring-white/10 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)] transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-y-1 group-hover:ring-accent/25 group-hover:shadow-[0_26px_70px_-24px_rgba(56,189,248,0.22)]`}
       >
-        {/* Inner core — concentric radius + inset top highlight */}
-        <div
+        {/* Inner core — concentric radius + inset top highlight. This is the
+            <figure>, so the caption can be its direct last child. */}
+        <figure
           className={`relative ${aspect} ${
             feature ? "rounded-[1.5rem]" : "rounded-[1.125rem]"
           } overflow-hidden bg-ink-950 shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]`}
         >
-        {/* Blueprint paper background */}
-        <BlueprintBackground />
+          {/* Blueprint paper background */}
+          <BlueprintBackground />
 
-        {/* Engineering drawing overlay — grids, dimensions, callouts */}
-        <EngineeringDrawing work={work} feature={feature} />
+          {/* Engineering drawing overlay — grids, dimensions, callouts */}
+          <EngineeringDrawing work={work} feature={feature} />
 
-        {/* Part silhouette — VERY subtle ghost */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <PartSilhouette type={work.silhouette} feature={feature} />
-        </div>
-
-        {/* Cutout photo overlaid — hero */}
-        <div className="absolute inset-0 flex items-center justify-center p-5 md:p-8">
-          <div className="relative w-full h-full">
-            <Image
-              src={work.src}
-              alt={`${work.aircraft} ${work.component}`}
-              fill
-              priority={feature}
-              sizes={feature ? "(max-width: 1280px) 100vw, 1280px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
-              className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
-            />
+          {/* Part silhouette — VERY subtle ghost */}
+          <div aria-hidden className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <PartSilhouette type={work.silhouette} feature={feature} />
           </div>
-        </div>
 
-        {/* Title + state annotations on top (above drawing layer) */}
-        <div className="absolute top-3 left-3 right-3 flex items-start justify-between pointer-events-none">
-          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-accent/80">
-            {work.aircraft}
+          {/* Cutout photo overlaid — hero */}
+          <div className="absolute inset-0 flex items-center justify-center p-5 md:p-8">
+            <div className="relative w-full h-full">
+              <Image
+                src={work.src}
+                alt={item.alt}
+                fill
+                sizes={feature ? "(max-width: 768px) 70vw, 420px" : "(max-width: 640px) 70vw, 260px"}
+                className="object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.6)] transition-transform duration-[600ms] ease-out group-hover:scale-[1.02]"
+              />
+            </div>
           </div>
-          {feature && (
-            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-500 px-2 py-0.5 rounded border border-accent/20 bg-ink-950/60">
-              REV · A
-            </div>
-          )}
-        </div>
 
-        <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3 pointer-events-none">
-          <div>
-            <div className={`font-display font-semibold text-slate-50 tracking-tight ${feature ? "text-2xl md:text-3xl" : "text-lg"}`}>
-              {work.component}
-            </div>
-            {feature && (
-              <div className="mt-1 font-mono text-[11px] tracking-wider text-slate-400">
-                PN {work.partNo} · {work.material}
+          {/* Title + state annotations on top (above drawing layer) */}
+          <figcaption className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-3">
+              <div className="min-w-0 truncate font-mono text-[11px] tracking-[0.2em] uppercase text-accent/80">
+                {item.aircraft}
               </div>
-            )}
-          </div>
-          {feature && (
-            <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-400 px-2.5 py-1 rounded-full border border-white/10 bg-ink-950/50 backdrop-blur-sm shrink-0">
-              Stripped · Repaired · Painted · Released
+              {feature && (
+                <div className="shrink-0 font-mono text-[11px] tracking-[0.2em] uppercase text-slate-500 px-2 py-0.5 rounded border border-accent/20 bg-ink-950/60">
+                  {t.revLabel}
+                </div>
+              )}
             </div>
-          )}
-          {!feature && (
-            <div className="font-mono text-[9px] tracking-wider uppercase text-slate-500 text-right shrink-0">
-              {work.material}
+
+            <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
+              <div className={feature ? "min-w-0" : "shrink-0"}>
+                <div className={`font-display font-semibold text-slate-50 tracking-tight ${feature ? "text-2xl md:text-3xl truncate" : "text-lg"}`}>
+                  {item.component}
+                </div>
+                {feature && (
+                  <div className="mt-1 font-mono text-[11px] tracking-wider text-slate-400 truncate">
+                    {t.partNoLabel} {work.partNo} · {item.material}
+                  </div>
+                )}
+              </div>
+              {/* Too wide to sit beside the title on a phone-width card. */}
+              {feature && (
+                <div className="hidden md:block font-mono text-[11px] tracking-[0.2em] uppercase text-slate-400 px-2.5 py-1 rounded-full border border-white/10 bg-ink-950/50 backdrop-blur-sm shrink-0">
+                  {t.status}
+                </div>
+              )}
+              {!feature && (
+                <div className="min-w-0 truncate font-mono text-[11px] tracking-wider uppercase text-slate-500 text-right">
+                  {item.material}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        </div>
+          </figcaption>
+        </figure>
       </div>
-    </figure>
+    </div>
   );
 }
 
@@ -239,6 +228,10 @@ function useElementSize<T extends Element>() {
 function EngineeringDrawing({ work, feature }: { work: Work; feature?: boolean }) {
   const scale = feature ? "1.5" : "1";
   const [ref, { w, h }] = useElementSize<SVGSVGElement>();
+  // Several cards share a silhouette, so marker ids are per instance.
+  const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
+  const arrowId = `arrow-${uid}`;
+  const arrowRevId = `arrow-r-${uid}`;
 
   // Right dimension line, 22px in from the trailing edge.
   const dimX = px(w - 22);
@@ -262,10 +255,10 @@ function EngineeringDrawing({ work, feature }: { work: Work; feature?: boolean }
       {w > 0 && h > 0 && (
         <>
           <defs>
-            <marker id={`arrow-${work.silhouette}`} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <marker id={arrowId} markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
               <path d="M 0 0 L 5 3 L 0 6 z" fill="currentColor" opacity="0.5" />
             </marker>
-            <marker id={`arrow-r-${work.silhouette}`} markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto">
+            <marker id={arrowRevId} markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto">
               <path d="M 6 0 L 1 3 L 6 6 z" fill="currentColor" opacity="0.5" />
             </marker>
           </defs>
@@ -283,8 +276,8 @@ function EngineeringDrawing({ work, feature }: { work: Work; feature?: boolean }
               y2="22"
               stroke="currentColor"
               strokeWidth="0.5"
-              markerStart={`url(#arrow-r-${work.silhouette})`}
-              markerEnd={`url(#arrow-${work.silhouette})`}
+              markerStart={`url(#${arrowRevId})`}
+              markerEnd={`url(#${arrowId})`}
             />
             <line x1={px(w * 0.14)} y1="14" x2={px(w * 0.14)} y2="30" stroke="currentColor" strokeWidth="0.5" />
             <line x1={px(w * 0.86)} y1="14" x2={px(w * 0.86)} y2="30" stroke="currentColor" strokeWidth="0.5" />
@@ -302,8 +295,8 @@ function EngineeringDrawing({ work, feature }: { work: Work; feature?: boolean }
               y2={dimBottom}
               stroke="currentColor"
               strokeWidth="0.5"
-              markerStart={`url(#arrow-r-${work.silhouette})`}
-              markerEnd={`url(#arrow-${work.silhouette})`}
+              markerStart={`url(#${arrowRevId})`}
+              markerEnd={`url(#${arrowId})`}
             />
             <line x1={px(w - 30)} y1={dimTop} x2={px(w - 14)} y2={dimTop} stroke="currentColor" strokeWidth="0.5" />
             <line x1={px(w - 30)} y1={dimBottom} x2={px(w - 14)} y2={dimBottom} stroke="currentColor" strokeWidth="0.5" />
@@ -379,7 +372,6 @@ function dimensionFor(type: Work["silhouette"]): { chord: string; thickness: str
     case "aileron": return { chord: "3850 mm", thickness: "420 mm" };
     case "flap": return { chord: "4620 mm", thickness: "580 mm" };
     case "rudder": return { chord: "2400 mm", thickness: "Ø 680 mm" };
-    case "inlet": return { chord: "Ø 1200 mm", thickness: "Ø 1200 mm" };
     case "leading-edge": return { chord: "3100 mm", thickness: "320 mm" };
     case "muffler": return { chord: "1850 mm", thickness: "Ø 520 mm" };
   }
@@ -471,18 +463,6 @@ function PartSilhouette({ type, feature }: { type: Work["silhouette"]; feature?:
           <circle cx="100" cy="270" r="3" />
           <path d="M 40 30 L 40 290 M 35 30 L 45 30 M 35 290 L 45 290" strokeDasharray="2 2" />
           <text x="20" y="165" fontSize="8" fill="currentColor" stroke="none" textAnchor="middle" fontFamily="monospace" opacity="0.6" transform="rotate(-90 20 165)">HEIGHT 2.4m</text>
-        </svg>
-      );
-    case "inlet":
-      return (
-        <svg viewBox="0 0 300 260" className={className} fill="none" stroke="currentColor" strokeWidth={stroke}>
-          <path d="M 60 130 Q 60 40 150 40 Q 240 40 240 130 Q 240 220 150 220 Q 60 220 60 130 Z" />
-          <path d="M 90 130 Q 90 70 150 70 Q 210 70 210 130 Q 210 190 150 190 Q 90 190 90 130 Z" />
-          <line x1="60" y1="130" x2="240" y2="130" strokeDasharray="3 4" />
-          <line x1="150" y1="40" x2="150" y2="220" strokeDasharray="3 4" />
-          <circle cx="150" cy="130" r="4" />
-          <circle cx="150" cy="130" r="8" />
-          <text x="150" y="245" fontSize="8" fill="currentColor" stroke="none" textAnchor="middle" fontFamily="monospace" opacity="0.6">Ø 1.2m</text>
         </svg>
       );
     case "leading-edge":

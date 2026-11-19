@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Careers from "@/components/careers/Careers";
+import MotionProvider from "@/components/MotionProvider";
 
 export const metadata: Metadata = {
   title: "Careers — FLG Technics",
@@ -21,10 +22,12 @@ export const metadata: Metadata = {
 
 export default function CareersPage() {
   return (
-    <main className="relative overflow-x-hidden">
-      <Nav />
-      <Careers />
-      <Footer />
-    </main>
+    <MotionProvider>
+      <main id="main" className="relative overflow-x-hidden">
+        <Nav />
+        <Careers />
+        <Footer />
+      </main>
+    </MotionProvider>
   );
 }

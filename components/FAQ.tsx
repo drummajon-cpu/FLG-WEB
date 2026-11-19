@@ -1,56 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus } from "lucide-react";
 import { SectionHeader } from "./Capabilities";
+import { faqCopy } from "@/data/home/sections-c";
+import { homeFaqs } from "@/data/faq";
+import type { Locale } from "@/lib/i18n";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
-const items = [
-  {
-    q: "What regulatory approvals do you hold?",
-    a: "FLG Technics is an FAA Part 145 repair station (certificate F72R832X), with EASA (EASA.145.6278) and UK CAA (UK.145.50849) Part‑145 approvals for work on EU‑ and UK‑registered aircraft. Certified welding is performed to AWS D17.1 — the aerospace fusion specification for titanium, stainless, and aluminum. Copies of each certificate can be downloaded from the Certifications section above.",
-  },
-  {
-    q: "Do you handle DER repairs and PMA parts?",
-    a: "Yes. Our in‑house engineering team holds FAA Designated Engineering Representative authority — we issue 8110‑3 repair approvals and develop Parts Manufacturer Approval (PMA) replacements end to end, from opportunity analysis through testing and steady‑state production.",
-  },
-  {
-    q: "What aircraft types do you service?",
-    a: "Commercial and regional jets including Boeing 737/747/757/767/777, Airbus A320 family, A330, A350, and regional types (CRJ, ERJ, Q400). We specialize in flight structures — ailerons, flaps, spoilers, rudders, leading edges — plus engine inlets, thrust reversers, doors, and cargo systems.",
-  },
-  {
-    q: "How fast is AOG turnaround?",
-    a: "Our AOG desk is staffed 24/7 at (754) 544‑1991. Typical AOG response is within the hour on the phone, on‑dock same‑day or next‑day depending on origin, and expedited turn times negotiated per event. Most AOG parts ship within 48–72 hours once received.",
-  },
-  {
-    q: "Can I see the status of my work order?",
-    a: "Yes. Every customer gets access to our dedicated portal (desktop + mobile) where you can track work‑order progress in real time — including mechanic clock‑ins, stage completions, teardown photos, inspection findings, and document releases. Direct chat with your account team is built in.",
-  },
-  {
-    q: "Do you offer teardown and storage services?",
-    a: "Yes — both — through our Sebring, FL site. We do \"plane‑in‑a‑box\" teardowns: whole aircraft disassembly, units serviced in‑house, and serviceable rotables, LRUs, and structural components returned to the aftermarket ready to go, with full traceability. We also rent hangar storage to other operators and teardown companies that need airside, climate‑controlled space for staged aircraft or inventory.",
-  },
-  {
-    q: "What's your quote turnaround time?",
-    a: "Standard RFQs typically receive a written quote the same business day. This is possible because our proprietary systems cross‑reference inventory, capability, and market data the moment an RFQ arrives — we're often sourcing parts before your unit hits our dock.",
-  },
-  {
-    q: "Where are you located? Do you accept international work?",
-    a: "Headquartered in Miramar, FL (75,000 sq ft primary facility) with a second site in Sebring, FL for teardown and end‑of‑life. We service operators worldwide under our FAA/EASA/UK CAA approvals — shipping and customs handled.",
-  },
-];
+export default function FAQ({ locale = "en" }: { locale?: Locale }) {
+  const t = faqCopy[locale];
+  const items = homeFaqs[locale];
 
-export default function FAQ() {
   return (
     <section id="faq" className="relative py-28 md:py-36">
       <div className="max-w-5xl mx-auto px-6">
-        <SectionHeader
-          eyebrow="FAQ"
-          title="Things procurement teams ask before the first call."
-          description="Short answers to the questions that come up most often. For anything not covered, reach out to repairs@flgtechnics.com or call the AOG line."
-        />
+        <SectionHeader eyebrow={t.eyebrow} title={t.title} description={t.description} />
 
         <div className="mt-12 rounded-2xl border border-white/5 bg-ink-900/50 overflow-hidden divide-y divide-white/5">
           {items.map((item, i) => (
@@ -70,6 +37,9 @@ function FAQItem({
   index: number;
 }) {
   const [open, setOpen] = useState(false);
+  const id = useId();
+  const buttonId = `${id}-q`;
+  const panelId = `${id}-a`;
 
   return (
     <motion.div
@@ -78,30 +48,38 @@ function FAQItem({
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.2), ease: EASE }}
     >
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="press w-full flex items-center justify-between gap-4 px-6 py-5 md:px-7 md:py-6 text-left hover:bg-white/[0.02] transition-colors"
-      >
-        <span className="font-display text-lg md:text-[19px] font-medium text-slate-100 tracking-tight">
-          {item.q}
-        </span>
-        <div
-          className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-all duration-200 ease-out ${
-            open
-              ? "bg-teal/10 border-teal/50 text-teal-bright rotate-45"
-              : "border-white/10 text-slate-400"
-          }`}
+      <h3>
+        {/* `.press` already transitions transform and colours; no Tailwind transition here. */}
+        <button
+          type="button"
+          id={buttonId}
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          aria-controls={panelId}
+          className="press w-full flex items-center justify-between gap-4 px-6 py-5 md:px-7 md:py-6 text-left hover:bg-white/[0.02]"
         >
-          <Plus className="w-4 h-4" />
-        </div>
-      </button>
+          <span className="font-display text-lg md:text-[19px] font-medium text-slate-100 tracking-tight">
+            {item.q}
+          </span>
+          <span
+            className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition-[transform,background-color,border-color,color] duration-200 ease-out ${
+              open
+                ? "bg-teal/10 border-teal/50 text-teal-bright rotate-45"
+                : "border-white/10 text-slate-400"
+            }`}
+          >
+            <Plus aria-hidden className="w-4 h-4" />
+          </span>
+        </button>
+      </h3>
 
       <AnimatePresence initial={false}>
         {open && (
           <motion.div
             key="content"
+            id={panelId}
+            role="region"
+            aria-labelledby={buttonId}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

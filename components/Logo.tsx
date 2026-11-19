@@ -94,10 +94,11 @@ export function LogoLockup({
         width={639}
         height={297}
         priority
+        sizes="150px"
         className="h-[68px] w-auto"
       />
       {tagline && (
-        <span className="font-mono text-[9px] tracking-[0.22em] text-slate-500 uppercase mt-1.5 ml-1">
+        <span className="font-mono text-[11px] tracking-[0.2em] text-slate-500 uppercase mt-1.5 ml-1">
           Aerospace · MRO
         </span>
       )}

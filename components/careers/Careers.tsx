@@ -47,6 +47,7 @@ export default function Careers() {
         <div aria-hidden className="absolute inset-0 bg-grid opacity-20 mask-radial" />
         <div className="relative max-w-7xl mx-auto px-6">
           <SectionHeader
+            as="h1"
             eyebrow="Careers at FLG Technics"
             title="Do the work that keeps aircraft flying."
             description="We're hiring aircraft mechanics and inspectors, plus experienced aerospace management and quality people. Join an FAA Part 145 repair station that does its own engineering, machining and welding under one roof."

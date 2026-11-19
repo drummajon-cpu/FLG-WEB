@@ -1,20 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { MapPin, Calendar, Users, Wrench } from "lucide-react";
 import { SectionHeader } from "./Capabilities";
+import { aboutCopy } from "@/data/home/sections-c";
+import type { Locale } from "@/lib/i18n";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
-const pillars = [
-  { icon: Calendar, label: "Established", value: "1998" },
-  { icon: MapPin, label: "Headquarters", value: "Miramar, FL" },
-  { icon: Wrench, label: "Facility", value: "75,000 sq ft" },
-  { icon: Users, label: "Second site", value: "Sebring, FL — Teardown" },
-];
+// Icons for the four pillars, in the order of `aboutCopy[locale].pillars`.
+const PILLAR_ICONS = [Calendar, MapPin, Wrench, Users];
 
-export default function About() {
+type MapCopy = (typeof aboutCopy)[Locale]["map"];
+
+export default function About({ locale = "en" }: { locale?: Locale }) {
+  const t = aboutCopy[locale];
   return (
     <section id="about" className="relative py-28 md:py-36 overflow-hidden">
       <div aria-hidden className="absolute inset-0 bg-grid opacity-20 mask-radial" />
@@ -22,10 +24,7 @@ export default function About() {
       <div className="relative max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-start">
           <div>
-            <SectionHeader
-              eyebrow="About FLG Technics"
-              title="Twenty‑eight years building trust, one repair at a time."
-            />
+            <SectionHeader eyebrow={t.eyebrow} title={t.title} />
 
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -34,28 +33,9 @@ export default function About() {
               transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
               className="mt-6 space-y-5 text-slate-400 leading-relaxed text-lg"
             >
-              <p>
-                FLG Technics started in 1998 with a narrow focus: repairing crew seats better than
-                anyone else. Twenty‑eight years on, the focus has grown. We are an FAA Part 145 repair station
-                specializing in flight structures, transparency, and cargo systems — serving
-                commercial and regional operators worldwide.
-              </p>
-              <p>
-                What separates us isn&apos;t scale — it&apos;s the breadth of what we do ourselves.
-                Engineering, 3D scanning, CNC machining, PMA development, and certified welding all
-                live under one roof in South Florida. That means faster turnarounds, cleaner
-                traceability, and real answers when something unusual comes across our dock.
-              </p>
-              <p>
-                Our Sebring, FL site closes the loop for end‑of‑life fleets — &quot;plane‑in‑a‑box&quot;
-                teardowns where we remove and service the components, returning traceable parts
-                to the aftermarket ready to go. We also rent hangar storage to operators and
-                teardown companies that need climate‑controlled, airside space.
-              </p>
-              <p>
-                We treat communication as the product as much as the repair. You&apos;ll always know
-                where your parts are, what we found, and when they ship.
-              </p>
+              {t.paragraphs.map((p) => (
+                <p key={p}>{p}</p>
+              ))}
             </motion.div>
           </div>
 
@@ -69,24 +49,21 @@ export default function About() {
             {/* Facility card with Florida map */}
             <div className="relative rounded-2xl border border-white/5 bg-ink-900/60 overflow-hidden">
               <div className="relative aspect-[3/4] bg-ink-950 overflow-hidden">
-                <FloridaMap />
+                <FloridaMap copy={t.map} />
                 <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10">
-                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-400">
-                    Florida · 2 sites
-                  </div>
-                  <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-accent px-2 py-1 rounded border border-accent/30 bg-accent/5 backdrop-blur-sm">
-                    Live
+                  <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-slate-400">
+                    {t.map.sites}
                   </div>
                 </div>
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-2 gap-4">
-                  {pillars.map((p) => {
-                    const Icon = p.icon;
+                  {t.pillars.map((p, i) => {
+                    const Icon = PILLAR_ICONS[i];
                     return (
                       <div key={p.label} className="flex items-start gap-3">
                         <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center shrink-0">
-                          <Icon className="w-4 h-4 text-accent" />
+                          <Icon aria-hidden className="w-4 h-4 text-accent" />
                         </div>
                         <div>
                           <div className="text-xs uppercase tracking-wider font-mono text-slate-500">
@@ -107,17 +84,24 @@ export default function About() {
   );
 }
 
-function FloridaMap() {
+function FloridaMap({ copy }: { copy: MapCopy }) {
+  // The SMIL dash animation loops forever, so it is left out under
+  // prefers-reduced-motion. It is also held back until after mount: the server
+  // cannot know the preference, and the first client render has to match it.
+  const reduce = useReducedMotion();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const animateRoute = mounted && !reduce;
+
   // Pins placed at exact positions derived from user-confirmed clicks on the
   // FLORIDA IMAGE.png backdrop: Sebring ≈ 78.3% 48.4%, Miramar ≈ 87.4% 65.5%.
   return (
     <>
       <Image
         src="/images/FLORIDA IMAGE.png"
-        alt="Florida — FLG Technics facilities"
+        alt={copy.alt}
         fill
-        priority
-        sizes="(max-width: 1024px) 100vw, 50vw"
+        sizes="(max-width: 1024px) 100vw, 608px"
         className="object-cover object-center"
       />
 
@@ -146,27 +130,29 @@ function FloridaMap() {
           strokeDasharray="0.5 1.2"
           vectorEffect="non-scaling-stroke"
         >
-          <animate attributeName="stroke-dashoffset" from="0" to="-6" dur="1.2s" repeatCount="indefinite" />
+          {animateRoute && (
+            <animate attributeName="stroke-dashoffset" from="0" to="-6" dur="1.2s" repeatCount="indefinite" />
+          )}
         </path>
       </svg>
 
       {/* Sebring pin — central FL inland (teal = second site / heritage) */}
       <Pin left="78.3%" top="48.4%" size={10} variant="teal">
-        <Callout left="56%" top="40%" title="SEBRING · FL" body="Teardown · End-of-life" variant="teal" />
+        <Callout left="56%" top="40%" title={copy.sebring.title} body={copy.sebring.body} variant="teal" />
       </Pin>
 
       {/* Miramar pin — SE FL between Ft. Lauderdale and Miami */}
       <Pin left="91%" top="63%" size={12} delay={1}>
-        <Callout left="56%" top="72%" title="MIRAMAR · HQ" body="Part 145 · MRO" meta="75,000 sq ft" />
+        <Callout left="56%" top="72%" title={copy.miramar.title} body={copy.miramar.body} meta={copy.miramar.meta} />
       </Pin>
 
       {/* Distance / time badge — bottom-right corner, out of the way */}
       <div className="absolute right-3 bottom-3 rounded border border-accent/50 bg-ink-950/90 px-2 py-1.5 backdrop-blur-sm">
         <div className="font-mono text-[9px] tracking-[0.18em] text-accent/90 uppercase">
-          149 mi · 2h 31m
+          {copy.distance}
         </div>
         <div className="font-mono text-[8px] tracking-[0.18em] text-slate-500 uppercase mt-0.5">
-          I‑27 · I‑595 · I‑95
+          {copy.route}
         </div>
       </div>
     </>
@@ -198,6 +184,7 @@ function Pin({
         <span className="relative flex" style={{ width: size, height: size }}>
           <span
             className={`absolute inset-0 rounded-full opacity-40 ${isTeal ? "bg-teal" : "bg-accent"}`}
+            // Keyframes `ping-grow` live at the end of app/globals.css.
             style={{ animation: `ping-grow 3s ease-out ${delay}s infinite` }}
           />
           <span
@@ -213,12 +200,6 @@ function Pin({
         </span>
       </div>
       {children}
-      <style jsx>{`
-        @keyframes ping-grow {
-          0% { transform: scale(1); opacity: 0.5; }
-          100% { transform: scale(3.2); opacity: 0; }
-        }
-      `}</style>
     </>
   );
 }
