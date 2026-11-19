@@ -1,6 +1,6 @@
 # Spanish strings for native review
 
-744 string pairs. Edit the Spanish in the file named in each heading's copy source: `data/home/core.ts`, `data/home/sections-a.ts`, `sections-b.ts`, `sections-c.ts`, `data/faq.ts`, `data/services.es.ts`, `components/AogBar.tsx`, `components/RootShell.tsx`, `app/(es)/layout.tsx`.
+756 string pairs. Edit the Spanish in the file named in each heading's copy source: `data/home/core.ts`, `data/home/sections-a.ts`, `sections-b.ts`, `sections-c.ts`, `data/faq.ts`, `data/services.es.ts`, `components/AogBar.tsx`, `components/RootShell.tsx`, `app/(es)/layout.tsx`.
 
 Terms kept in English on purpose: DER, PMA, AOG, MRO, RFQ, CNC, NDT, CFRP, SRM, CMM, LRU, TIG, APU, FAA Part 145, EASA, UK CAA, AWS D17.1, 8110‑3, 8130‑3, aircraft and material designations.
 
@@ -91,6 +91,17 @@ Terms kept in English on purpose: DER, PMA, AOG, MRO, RFQ, CNC, NDT, CFRP, SRM, 
 | `rfq.sentPhotos` | Photos cannot be attached automatically. Please attach these to the email before sending: | Las fotos no se pueden adjuntar automáticamente. Adjúntelas al correo antes de enviarlo: |
 | `rfq.sentFallback` | Nothing opened? Email us directly at | ¿No se abrió nada? Escríbanos directamente a |
 | `rfq.edit` | Edit request | Editar solicitud |
+| `rfq.sending` | Sending | Enviando |
+| `rfq.receivedTitle` | Request received. | Solicitud recibida. |
+| `rfq.receivedBody` | Your request and photos are with our repairs desk. We will reply by email. | Su solicitud y sus fotos ya están con nuestro equipo de reparaciones. Le responderemos por correo electrónico. |
+| `rfq.reference` | Reference | Referencia |
+| `rfq.errCheck` | Please check this field. | Revise este campo. |
+| `rfq.errSecurity` | Please complete the security check above the Send button, then send again. | Complete la verificación de seguridad que aparece sobre el botón Enviar y vuelva a enviar. |
+| `rfq.errPhotoType` | One of the files is not a photo we can accept. Please use JPG, PNG or HEIC. | Uno de los archivos no es una foto que podamos aceptar. Use JPG, PNG o HEIC. |
+| `rfq.errPhotosRejected` | The photos were too large or too many. Please remove some and send again. | Las fotos son demasiado grandes o demasiadas. Quite algunas y vuelva a enviar. |
+| `rfq.errTooManyPhotos(1)` | Please attach no more than 1 photo. | Adjunte como máximo 1 foto. |
+| `rfq.errTooManyPhotos(3)` | Please attach no more than 3 photos. | Adjunte como máximo 3 fotos. |
+| `rfq.errPhotoTooLarge` | {file} is larger than {limit}. Please remove it or send a smaller copy. | {file} supera los {limit}. Quítela o envíe una copia más pequeña. |
 | `rfq.subject` | Quote request | Solicitud de cotización |
 
 ### Site chrome: footerCopy

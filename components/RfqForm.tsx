@@ -1,26 +1,84 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
-import { AlertTriangle, ArrowRight, CheckCircle2, ImagePlus, Phone, X } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import { AlertTriangle, ArrowRight, CheckCircle2, ImagePlus, Loader2, Phone, X } from "lucide-react";
 import { AIRCRAFT_OPTIONS, contactCopy } from "@/data/home/core";
 import type { Locale } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
 
-// Quote request (RFQ) form.
+// Quote request (RFQ) form. A request goes out two ways, as the owner asked:
 //
-// TRANSPORT — read before changing. The site had no contact form and no form backend
-// (the old Contact section was three tel:/mailto: cards), and the brief for this work
-// was to reuse the existing backend rather than add a third-party service. So, until
-// the owner picks a backend, `deliver()` below does what the site already did: it
-// hands the request to the visitor's own email app, addressed to the repairs desk,
-// with every field filled in. A mailto: link cannot carry attachments, so the form
-// lists the chosen photos and asks the visitor to attach them before sending.
+// 1. EZRP. The form asks EZRP whether its repair-RFQ intake is open
+//    (GET /api/public/rfq/config) and, if so, posts the request and the photos to it
+//    (POST /api/public/rfq/submit). Both go through proxy.ts, signed, exactly like the
+//    careers form. EZRP records the customer RFQ and emails the repairs desk itself.
+//    The full contract is in docs/rfq-ezrp-contract.md.
 //
-// TODO(owner): choose the real submit path, then replace `deliver()` only. The two
-// first-party options already in this repo are (a) FLG's own parts system through the
-// signed proxy in proxy.ts, as the careers form does (/api/public/careers/*), and
-// (b) a Next route that forwards to an EZRP webhook, as /api/cert-download does.
-// Either one lets the photos upload with the request.
+// 2. Email. While that intake does not exist or is switched off (any answer other
+//    than a clean "open"), and whenever a submit to it fails, the form hands the
+//    request to the visitor's own email app, addressed to the repairs desk, with every
+//    field filled in. A mailto: link cannot carry attachments, so the form lists the
+//    chosen photos and asks the visitor to attach them. No request is dropped because
+//    EZRP was unreachable.
+//
+// Cloudflare Turnstile is loaded only when EZRP's config supplies a site key, the same
+// arrangement the careers form has.
+//
+// The EZRP path is switched on with NEXT_PUBLIC_RFQ_EZRP=1 in Vercel, once EZRP serves
+// the intake (the same kind of switch as NEXT_PUBLIC_SHOW_INVENTORY_LINK). While it is
+// unset the form never calls EZRP and always uses email, so the home page does not log
+// a failed request on every visit.
+const ezrpEnabled = process.env.NEXT_PUBLIC_RFQ_EZRP === "1";
+
+const CONFIG_URL = "/api/public/rfq/config";
+const SUBMIT_URL = "/api/public/rfq/submit";
+const TURNSTILE_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+const DEFAULT_MAX_PHOTO_BYTES = 10 * 1024 * 1024;
+const DEFAULT_MAX_PHOTOS = 8;
+
+type Intake = { siteKey: string; maxPhotoBytes: number; maxPhotos: number };
+
+type TurnstileApi = {
+  render: (el: HTMLElement, opts: Record<string, unknown>) => string;
+  reset: (id?: string) => void;
+};
+
+function turnstile(): TurnstileApi | undefined {
+  return (window as unknown as { turnstile?: TurnstileApi }).turnstile;
+}
+
+function loadTurnstile(): Promise<TurnstileApi> {
+  return new Promise((resolve, reject) => {
+    const ready = turnstile();
+    if (ready) return resolve(ready);
+    let script = document.querySelector<HTMLScriptElement>(`script[src="${TURNSTILE_SRC}"]`);
+    if (!script) {
+      script = document.createElement("script");
+      script.src = TURNSTILE_SRC;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+    script.addEventListener("load", () => {
+      const api = turnstile();
+      if (api) resolve(api);
+      else reject(new Error("no turnstile"));
+    });
+    script.addEventListener("error", () => reject(new Error("turnstile failed to load")));
+  });
+}
+
+function newKey(): string {
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return `k-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+  }
+}
+
+function mb(bytes: number): string {
+  return `${Math.round(bytes / (1024 * 1024))} MB`;
+}
 
 type Fields = {
   name: string;
@@ -48,12 +106,26 @@ const EMPTY: Fields = {
 
 const REQUIRED: (keyof Fields)[] = ["name", "company", "email", "damage"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// EZRP's field names -> this form's, for the "invalid" answer.
+const SERVER_FIELDS: Record<string, keyof Fields> = {
+  name: "name",
+  company: "company",
+  email: "email",
+  phone: "phone",
+  part_number: "partNumber",
+  serial_number: "serialNumber",
+  aircraft_type: "aircraft",
+  damage: "damage",
+};
 
 const inputCls =
   "w-full rounded-md border border-white/10 bg-ink-900/70 px-3.5 py-2.5 text-[15px] text-slate-100 placeholder:text-slate-500 outline-none transition-[border-color,background-color,box-shadow] duration-150 focus:border-accent/70 focus:bg-ink-900 focus:ring-2 focus:ring-accent/40 aria-[invalid=true]:border-red-400/70";
 const labelCls = "block font-mono text-[11px] tracking-[0.16em] uppercase text-slate-400 mb-1.5";
 
-function deliver(fields: Fields, photos: File[], t: (typeof contactCopy)[Locale]["rfq"]) {
+type RfqCopy = (typeof contactCopy)[Locale]["rfq"];
+
+/** The email hand-off: open the visitor's mail app with the request written out. */
+function deliverByEmail(fields: Fields, photos: File[], t: RfqCopy) {
   const aog = fields.aog === "yes";
   const subject = [aog ? t.aogTag : "", t.subject, fields.partNumber, fields.company].filter(Boolean).join(" · ");
   const lines = [
@@ -74,6 +146,8 @@ function deliver(fields: Fields, photos: File[], t: (typeof contactCopy)[Locale]
   window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
 }
 
+type Sent = { via: "ezrp"; reference: string } | { via: "email" };
+
 export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
   const t = contactCopy[locale].rfq;
   const uid = useId();
@@ -81,9 +155,60 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [photos, setPhotos] = useState<File[]>([]);
   const [errors, setErrors] = useState<Partial<Record<keyof Fields, string>>>({});
-  const [sent, setSent] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [sent, setSent] = useState<Sent | null>(null);
+  const [sending, setSending] = useState(false);
+  // null: EZRP's intake is not open (or not asked yet), so the form uses email.
+  const [intake, setIntake] = useState<Intake | null>(null);
+  const [token, setToken] = useState("");
+  const [clientKey] = useState(newKey);
   const formRef = useRef<HTMLFormElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const widgetRef = useRef<HTMLDivElement>(null);
+  const widgetId = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!ezrpEnabled) return;
+    let live = true;
+    fetch(CONFIG_URL, { cache: "no-store" })
+      .then(async (r) => {
+        const d = (await r.json().catch(() => null)) as
+          | { open?: boolean; site_key?: string; max_photo_bytes?: number; max_photos?: number }
+          | null;
+        if (!live || !r.ok || !d || !d.open) return;
+        setIntake({
+          siteKey: d.site_key || "",
+          maxPhotoBytes: Number(d.max_photo_bytes) || DEFAULT_MAX_PHOTO_BYTES,
+          maxPhotos: Number(d.max_photos) || DEFAULT_MAX_PHOTOS,
+        });
+      })
+      .catch(() => {
+        /* no intake: the form stays on the email hand-off */
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!intake?.siteKey || sent || !widgetRef.current || widgetId.current) return;
+    let live = true;
+    loadTurnstile()
+      .then((ts) => {
+        if (!live || !widgetRef.current || widgetId.current) return;
+        widgetId.current = ts.render(widgetRef.current, {
+          sitekey: intake.siteKey,
+          theme: "dark",
+          callback: (tok: string) => setToken(tok),
+          "expired-callback": () => setToken(""),
+          "error-callback": () => setToken(""),
+        });
+      })
+      // The check could not load: fall back to email rather than block the request.
+      .catch(() => live && setIntake(null));
+    return () => {
+      live = false;
+    };
+  }, [intake, sent]);
 
   const set = (key: keyof Fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFields((f) => ({ ...f, [key]: e.target.value }));
@@ -97,11 +222,28 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
       const seen = new Set(prev.map((f) => `${f.name}:${f.size}`));
       return [...prev, ...picked.filter((f) => !seen.has(`${f.name}:${f.size}`))];
     });
+    setFormError("");
     e.target.value = "";
   }
 
-  function submit(e: React.FormEvent<HTMLFormElement>) {
+  function resetWidget() {
+    setToken("");
+    try {
+      turnstile()?.reset(widgetId.current);
+    } catch {
+      /* the widget is gone; the next render makes a new one */
+    }
+  }
+
+  function byEmail() {
+    deliverByEmail(fields, photos, t);
+    setSent({ via: "email" });
+  }
+
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (sending) return;
+    setFormError("");
     const next: Partial<Record<keyof Fields, string>> = {};
     for (const key of REQUIRED) if (!fields[key].trim()) next[key] = t.errRequired;
     if (!next.email && !EMAIL_RE.test(fields.email.trim())) next.email = t.errEmail;
@@ -111,8 +253,67 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
       formRef.current?.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
       return;
     }
-    deliver(fields, photos, t);
-    setSent(true);
+
+    if (!intake) return byEmail();
+
+    if (photos.length > intake.maxPhotos) return setFormError(t.errTooManyPhotos(intake.maxPhotos));
+    const big = photos.find((f) => f.size > intake.maxPhotoBytes);
+    if (big) return setFormError(t.errPhotoTooLarge(big.name, mb(intake.maxPhotoBytes)));
+    if (intake.siteKey && !token) return setFormError(t.errSecurity);
+
+    const data = new FormData();
+    data.set("client_key", clientKey);
+    data.set("turnstile_token", token);
+    data.set("locale", locale);
+    data.set("name", fields.name.trim());
+    data.set("company", fields.company.trim());
+    data.set("email", fields.email.trim());
+    data.set("phone", fields.phone.trim());
+    data.set("part_number", fields.partNumber.trim());
+    data.set("serial_number", fields.serialNumber.trim());
+    data.set("aircraft_type", fields.aircraft);
+    data.set("damage", fields.damage.trim());
+    data.set("aog", fields.aog);
+    // Honeypot: a real visitor never sees or fills this.
+    data.set("website", (formRef.current?.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "");
+    for (const f of photos) data.append("photos", f, f.name);
+
+    setSending(true);
+    let r: Response;
+    try {
+      r = await fetch(SUBMIT_URL, { method: "POST", body: data });
+    } catch {
+      setSending(false);
+      return byEmail();
+    }
+    const d = (await r.json().catch(() => ({}))) as { ok?: boolean; rfq_id?: string | number; reason?: string; fields?: string[] };
+    setSending(false);
+    if (r.ok && d.ok) return setSent({ via: "ezrp", reference: d.rfq_id != null ? String(d.rfq_id) : "" });
+
+    resetWidget();
+    switch (d.reason) {
+      case "invalid": {
+        const bad: Partial<Record<keyof Fields, string>> = {};
+        for (const f of d.fields ?? []) {
+          const key = SERVER_FIELDS[f];
+          if (key) bad[key] = key === "email" ? t.errEmail : t.errCheck;
+        }
+        setErrors(bad);
+        setFormError(t.errorSummary);
+        return;
+      }
+      case "turnstile":
+        return setFormError(t.errSecurity);
+      case "photo_type":
+        return setFormError(t.errPhotoType);
+      case "photo_too_large":
+      case "too_many_photos":
+        return setFormError(t.errPhotosRejected);
+      default:
+        // Closed, rate limited, 5xx, or anything unrecognised: the request still
+        // reaches the repairs desk, by email.
+        return byEmail();
+    }
   }
 
   const field = (key: keyof Fields, label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => {
@@ -144,14 +345,22 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
   };
 
   if (sent) {
+    const viaEzrp = sent.via === "ezrp";
     return (
       <div role="status" className="rounded-2xl border border-accent/25 bg-accent/[0.06] p-6 md:p-8">
         <div className="flex items-start gap-3">
           <CheckCircle2 className="w-6 h-6 text-accent shrink-0 mt-0.5" aria-hidden />
           <div>
-            <h3 className="font-display text-xl font-semibold text-slate-100 tracking-tight">{t.sentTitle}</h3>
-            <p className="mt-2 text-slate-300 leading-relaxed">{t.sentBody}</p>
-            {photos.length > 0 && (
+            <h3 className="font-display text-xl font-semibold text-slate-100 tracking-tight">
+              {viaEzrp ? t.receivedTitle : t.sentTitle}
+            </h3>
+            <p className="mt-2 text-slate-300 leading-relaxed">{viaEzrp ? t.receivedBody : t.sentBody}</p>
+            {viaEzrp && sent.reference && (
+              <p className="mt-3 font-mono text-[13px] tracking-[0.08em] text-slate-200">
+                {t.reference}: {sent.reference}
+              </p>
+            )}
+            {!viaEzrp && photos.length > 0 && (
               <>
                 <p className="mt-4 text-slate-300 leading-relaxed">{t.sentPhotos}</p>
                 <ul className="mt-2 list-disc pl-5 text-sm text-slate-400 space-y-0.5">
@@ -163,20 +372,33 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
                 </ul>
               </>
             )}
-            <p className="mt-4 text-sm text-slate-400">
-              {t.sentFallback}{" "}
-              <a href={`mailto:${SITE.email}`} className="text-accent hover:underline">
-                {SITE.email}
-              </a>
-              .
-            </p>
-            <button
-              type="button"
-              onClick={() => setSent(false)}
-              className="press mt-5 inline-flex items-center px-4 py-2 text-sm font-medium text-slate-200 rounded-md border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.04]"
-            >
-              {t.edit}
-            </button>
+            {fields.aog === "yes" && (
+              <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-200">
+                <Phone className="w-4 h-4 text-accent shrink-0" aria-hidden />
+                {t.aogNote}
+                <a href={SITE.aog.href} className="font-semibold text-white underline decoration-accent/60 underline-offset-4">
+                  {SITE.aog.display}
+                </a>
+              </p>
+            )}
+            {!viaEzrp && (
+              <>
+                <p className="mt-4 text-sm text-slate-400">
+                  {t.sentFallback}{" "}
+                  <a href={`mailto:${SITE.email}`} className="text-accent hover:underline">
+                    {SITE.email}
+                  </a>
+                  .
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setSent(null)}
+                  className="press mt-5 inline-flex items-center px-4 py-2 text-sm font-medium text-slate-200 rounded-md border border-white/10 hover:border-white/20 bg-white/[0.02] hover:bg-white/[0.04]"
+                >
+                  {t.edit}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -184,6 +406,7 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
   }
 
   const hasErrors = Object.values(errors).some(Boolean);
+  const message = formError || (hasErrors ? t.errorSummary : "");
 
   return (
     <form ref={formRef} onSubmit={submit} noValidate className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-5">
@@ -195,6 +418,14 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
       {field("phone", t.phone, { type: "tel", autoComplete: "tel", inputMode: "tel" })}
       {field("partNumber", t.partNumber, { autoCapitalize: "characters", spellCheck: false })}
       {field("serialNumber", t.serialNumber, { autoCapitalize: "characters", spellCheck: false })}
+
+      {/* Honeypot for bots. Hidden from people and from assistive tech. */}
+      <div className="hidden" aria-hidden>
+        <label>
+          Website
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
+        </label>
+      </div>
 
       <div className="sm:col-span-2">
         <label htmlFor={id("aircraft")} className={labelCls}>
@@ -208,8 +439,8 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
               {a}
             </option>
           ))}
-          <option value={t.aircraftRegional}>{t.aircraftRegional}</option>
-          <option value={t.aircraftOther}>{t.aircraftOther}</option>
+          <option value="Regional jet">{t.aircraftRegional}</option>
+          <option value="Other">{t.aircraftOther}</option>
         </select>
       </div>
 
@@ -247,9 +478,7 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
             {/* The real input stays in the tab order (sr-only, not display:none);
                 the visible button is its label. */}
             <input
-              ref={fileRef}
               id={id("photos")}
-              name="photos"
               type="file"
               accept="image/*,.heic,.heif"
               multiple
@@ -323,19 +552,23 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
         )}
       </fieldset>
 
+      {/* Cloudflare's check, only when EZRP's intake is open and asks for one. */}
+      {intake?.siteKey && <div ref={widgetRef} className="sm:col-span-2 min-h-[65px]" />}
+
       <div className="sm:col-span-2 flex flex-wrap items-center gap-4">
         <button
           type="submit"
-          className="press inline-flex items-center gap-2 px-6 py-3 rounded-md bg-accent hover:bg-accent-bright text-ink-950 font-medium shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_8px_32px_-8px_rgba(56,189,248,0.5)]"
+          disabled={sending}
+          className="press inline-flex items-center gap-2 px-6 py-3 rounded-md bg-accent hover:bg-accent-bright text-ink-950 font-medium shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_8px_32px_-8px_rgba(56,189,248,0.5)] disabled:opacity-70 disabled:cursor-wait"
         >
-          {t.submit}
-          <ArrowRight className="w-4 h-4" aria-hidden />
+          {sending ? t.sending : t.submit}
+          {sending ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden /> : <ArrowRight className="w-4 h-4" aria-hidden />}
         </button>
         <p role="alert" className="flex items-center gap-2 text-sm text-red-300 empty:hidden">
-          {hasErrors && (
+          {message && (
             <>
               <AlertTriangle className="w-4 h-4 shrink-0" aria-hidden />
-              {t.errorSummary}
+              {message}
             </>
           )}
         </p>
