@@ -36,6 +36,49 @@ const TURNSTILE_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js?ren
 const DEFAULT_MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 const DEFAULT_MAX_PHOTOS = 8;
 
+// The submit travels browser -> Vercel (proxy.ts) -> EZRP. Vercel documents a 4 MB
+// request-body limit for routing middleware, and Next.js keeps only the first 10 MB of
+// a proxied body, so a handful of raw phone photos (3 to 8 MB each) would not arrive.
+// Photos are therefore scaled down in the browser before upload, and the whole request
+// is kept under this budget. If it still does not fit, the form uses email instead.
+const UPLOAD_BUDGET_BYTES = 3.5 * 1024 * 1024;
+const SHRINK_STEPS = [
+  { edge: 2000, quality: 0.82 },
+  { edge: 1400, quality: 0.72 },
+] as const;
+
+/** A JPEG copy of the photo no larger than `edge` px on its long side. Returns the
+    original file when the browser cannot decode it (HEIC outside Safari, for one) or
+    when the copy would not be smaller. */
+async function shrinkPhoto(file: File, edge: number, quality: number): Promise<File> {
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const scale = Math.min(1, edge / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/jpeg", quality));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
+
+/** The photos, shrunk to fit the upload budget, or null when they cannot be made to. */
+async function fitPhotos(photos: File[]): Promise<File[] | null> {
+  if (!photos.length) return [];
+  for (const step of SHRINK_STEPS) {
+    const out = await Promise.all(photos.map((f) => shrinkPhoto(f, step.edge, step.quality)));
+    if (out.reduce((n, f) => n + f.size, 0) <= UPLOAD_BUDGET_BYTES) return out;
+  }
+  return null;
+}
+
 type Intake = { siteKey: string; maxPhotoBytes: number; maxPhotos: number };
 
 type TurnstileApi = {
@@ -257,9 +300,20 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
     if (!intake) return byEmail();
 
     if (photos.length > intake.maxPhotos) return setFormError(t.errTooManyPhotos(intake.maxPhotos));
-    const big = photos.find((f) => f.size > intake.maxPhotoBytes);
-    if (big) return setFormError(t.errPhotoTooLarge(big.name, mb(intake.maxPhotoBytes)));
     if (intake.siteKey && !token) return setFormError(t.errSecurity);
+
+    setSending(true);
+    const upload = await fitPhotos(photos);
+    // Too much to carry through the proxy even after shrinking: send by email.
+    if (!upload) {
+      setSending(false);
+      return byEmail();
+    }
+    const big = upload.find((f) => f.size > intake.maxPhotoBytes);
+    if (big) {
+      setSending(false);
+      return setFormError(t.errPhotoTooLarge(big.name, mb(intake.maxPhotoBytes)));
+    }
 
     const data = new FormData();
     data.set("client_key", clientKey);
@@ -276,9 +330,8 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
     data.set("aog", fields.aog);
     // Honeypot: a real visitor never sees or fills this.
     data.set("website", (formRef.current?.elements.namedItem("website") as HTMLInputElement | null)?.value ?? "");
-    for (const f of photos) data.append("photos", f, f.name);
+    for (const f of upload) data.append("photos", f, f.name);
 
-    setSending(true);
     let r: Response;
     try {
       r = await fetch(SUBMIT_URL, { method: "POST", body: data });
@@ -298,6 +351,10 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
           const key = SERVER_FIELDS[f];
           if (key) bad[key] = key === "email" ? t.errEmail : t.errCheck;
         }
+        // "Invalid" with no field named means EZRP could not read the request at all
+        // (a body cut short on the way, for one). There is nothing for the visitor to
+        // correct, so send it by email.
+        if (!Object.keys(bad).length) return byEmail();
         setErrors(bad);
         setFormError(t.errorSummary);
         return;
@@ -480,7 +537,7 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
             <input
               id={id("photos")}
               type="file"
-              accept="image/*,.heic,.heif"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
               multiple
               onChange={addPhotos}
               aria-describedby={id("photos-hint")}

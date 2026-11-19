@@ -21,6 +21,16 @@ acknowledges from sales@.
   and `x-flg-client-ip` (the visitor's IP). Same as the inventory and careers paths.
 - Responses must be `Cache-Control: no-store`.
 
+## Upload size
+
+The form scales each photo down in the browser (JPEG, 2000 px on the long side, then
+1400 px if needed) and keeps the whole request under **3.5 MB**. Vercel documents a 4 MB
+request-body limit for routing middleware, and Next.js keeps only the first 10 MB of a
+proxied body, so raw phone photos would not arrive. A photo the browser cannot decode
+(HEIC outside Safari) is sent as it is; if the request still exceeds the budget, the
+form uses email instead. EZRP therefore receives mostly `image/jpeg` files of a few
+hundred KB each, with a `.jpg` name, rather than the visitor's originals.
+
 ## `GET /api/public/rfq/config`
 
 ```json
@@ -66,7 +76,7 @@ Refusals, any non-200 status, body `{ "reason": "…" }`:
 
 | `reason` | What the form does |
 | --- | --- |
-| `invalid` with `"fields": ["email", "damage", …]` (the field names above) | Marks those fields. |
+| `invalid` with `"fields": ["email", "damage", …]` (the field names above) | Marks those fields. With an empty or missing `fields` (EZRP could not read the request), falls back to email. |
 | `turnstile` | Asks the visitor to redo the security check. |
 | `photo_type` | Says a file is not an accepted photo. |
 | `photo_too_large`, `too_many_photos` | Asks the visitor to remove some. |
