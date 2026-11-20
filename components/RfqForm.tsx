@@ -163,6 +163,26 @@ function deliverByEmail(fields: Fields, photos: File[], locale: Locale) {
   window.location.href = buildRfqMailto(fields, photos.map((f) => f.name), locale, SITE.email).url;
 }
 
+/** Shown when the visitor marks the request as an AOG. The phone number is not
+    printed here: the button dials it (tel:), and the number is already in the bar at
+    the top of every page. */
+function AogCall({ note, label, className = "" }: { note: string; label: string; className?: string }) {
+  return (
+    <div
+      className={`flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-md border border-accent/30 bg-accent/[0.07] px-3.5 py-3 ${className}`}
+    >
+      <p className="min-w-[12rem] flex-1 text-sm text-slate-200">{note}</p>
+      <a
+        href={SITE.aog.href}
+        className="press inline-flex shrink-0 items-center gap-2 px-4 py-2 rounded-md bg-accent hover:bg-accent-bright text-ink-950 text-sm font-medium"
+      >
+        <Phone className="w-4 h-4" aria-hidden />
+        {label}
+      </a>
+    </div>
+  );
+}
+
 type Sent = { via: "ezrp"; reference: string } | { via: "email" };
 
 export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
@@ -404,13 +424,7 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
               </>
             )}
             {fields.aog === "yes" && (
-              <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate-200">
-                <Phone className="w-4 h-4 text-accent shrink-0" aria-hidden />
-                {t.aogNote}
-                <a href={SITE.aog.href} className="font-semibold text-white underline decoration-accent/60 underline-offset-4">
-                  {SITE.aog.display}
-                </a>
-              </p>
+              <AogCall note={t.aogNote} label={t.aogCall} className="mt-4" />
             )}
             {!viaEzrp && (
               <>
@@ -573,13 +587,7 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
           ))}
         </div>
         {fields.aog === "yes" && (
-          <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-accent/30 bg-accent/[0.07] px-3.5 py-2.5 text-sm text-slate-200">
-            <Phone className="w-4 h-4 text-accent shrink-0" aria-hidden />
-            {t.aogNote}
-            <a href={SITE.aog.href} className="font-semibold text-white underline decoration-accent/60 underline-offset-4">
-              {SITE.aog.display}
-            </a>
-          </p>
+          <AogCall note={t.aogNote} label={t.aogCall} className="mt-3" />
         )}
       </fieldset>
 
