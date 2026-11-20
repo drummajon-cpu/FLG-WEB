@@ -4,16 +4,17 @@ export const metadata: Metadata = {
   title: "SMS Text Messaging Terms & Privacy — FLG Technics",
   description:
     "FLG Technics SMS text messaging terms and privacy policy for internal operational notifications.",
+  alternates: { canonical: "/sms-privacy" },
 };
 
 export default function SmsPrivacyPage() {
   return (
-    <main className="min-h-screen bg-ink-950 text-slate-300">
+    <main id="main" className="min-h-screen bg-ink-950 text-slate-300">
       <div className="max-w-3xl mx-auto px-6 py-20">
         <h1 className="font-display text-2xl md:text-3xl text-slate-100">
           FLG Technics — SMS Text Messaging Terms &amp; Privacy
         </h1>
-        <p className="mt-2 text-sm text-slate-500 font-mono">
+        <p className="mt-2 text-sm text-slate-400 font-mono">
           Last updated: June 30, 2026
         </p>
 

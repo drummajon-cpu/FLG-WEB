@@ -1,6 +1,16 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Pin the workspace root to this folder. Without it Next walks up looking for a
+  // lockfile and can pick a stray one in a parent directory.
+  turbopack: { root: path.dirname(fileURLToPath(import.meta.url)) },
+  images: {
+    // AVIF first: smaller than WebP for the shop and work photos.
+    formats: ["image/avif", "image/webp"],
+  },
   async headers() {
     return [
       {

@@ -1,12 +1,13 @@
-"use client";
-
-import { useMemo } from "react";
-
 /**
  * Subtle falling data-stream background for the Systems section.
  * Each column loops a pre-generated string of pseudo-log-line fragments
  * so the rendering is deterministic and the animation is pure CSS
  * (transform: translateY). Respects prefers-reduced-motion.
+ *
+ * No hooks and no client-only APIs: the columns are computed once at module
+ * load from a fixed seed. The `datafall` keyframes and the `.datastream-col`
+ * class live at the end of app/globals.css, where a rule also pauses the
+ * columns while the Systems section is off-screen.
  */
 
 const CHARSET = [
@@ -32,7 +33,6 @@ const CHARSET = [
   "INCONEL·625",
   "°C·218",
   "QTY·001",
-  "SHP·THU",
   "CLOCK·IN",
   "STAGE·65%",
   "STAGE·72%",
@@ -40,7 +40,6 @@ const CHARSET = [
   "FAA·145",
   "·····",
   "PN A55-1300",
-  "OEM·OBSOLETE",
   "ROUT·042",
 ];
 
@@ -77,9 +76,9 @@ function buildColumns(count: number, seed: number): ColumnSpec[] {
   return cols;
 }
 
-export default function DataStream() {
-  const columns = useMemo(() => buildColumns(14, 1998), []);
+const COLUMNS = buildColumns(14, 1998);
 
+export default function DataStream() {
   return (
     <div
       aria-hidden
@@ -91,15 +90,16 @@ export default function DataStream() {
           "linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)",
       }}
     >
-      {columns.map((c, i) => (
+      {COLUMNS.map((c, i) => (
         <div
           key={i}
-          className="absolute top-0 font-mono leading-[1.6] whitespace-nowrap text-accent select-none"
+          className="datastream-col absolute top-0 font-mono leading-[1.6] whitespace-nowrap text-accent select-none"
           style={{
             left: c.left,
             fontSize: `${c.size}px`,
             opacity: c.opacity,
-            animation: `datafall ${c.duration}s linear ${c.delay}s infinite`,
+            animationDuration: `${c.duration}s`,
+            animationDelay: `${c.delay}s`,
           }}
         >
           {c.chars.concat(c.chars).map((ch, idx) => (
@@ -107,16 +107,6 @@ export default function DataStream() {
           ))}
         </div>
       ))}
-      <style jsx>{`
-        @keyframes datafall {
-          from {
-            transform: translateY(-50%);
-          }
-          to {
-            transform: translateY(0%);
-          }
-        }
-      `}</style>
     </div>
   );
 }

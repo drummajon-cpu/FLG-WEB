@@ -4,54 +4,41 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ScanLine, Wrench } from "lucide-react";
 import { SectionHeader } from "./Capabilities";
+import { shopFloorCopy } from "@/data/home/sections-b";
+import type { Locale } from "@/lib/i18n";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
-export default function ShopFloor() {
+type ShopCopy = (typeof shopFloorCopy)[Locale];
+
+export default function ShopFloor({ locale = "en" }: { locale?: Locale }) {
+  const t = shopFloorCopy[locale];
+
   return (
     <section id="shop" className="relative py-28 md:py-36 overflow-hidden">
       <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-transparent via-ink-900/30 to-transparent" />
       <div aria-hidden className="absolute inset-0 bg-grid-fine opacity-20 mask-radial" />
 
       <div className="relative max-w-7xl mx-auto px-6">
-        <SectionHeader
-          eyebrow="Inside The Shop"
-          title="75,000 sq ft of structure work, all under one roof."
-          description="Our Miramar, FL facility is purpose‑built for flight‑control surfaces, flaps, and engine inlets — backed by in‑house 3D scanning and a multi‑axis CNC machine shop for rapid tooling and PMA production."
-        />
+        <SectionHeader eyebrow={t.eyebrow} title={t.title} description={t.description} />
 
         {/* Bento grid: large facility hero + stacked CNC/3D scanner on the right */}
         <div className="mt-16 grid grid-cols-1 lg:grid-cols-3 gap-4 auto-rows-[minmax(240px,auto)]">
           {/* Facility aerial — spans 2 cols, 2 rows. Painted logo on right wall */}
-          <FacilityCard />
+          <FacilityCard copy={t.facility} />
 
           {/* CNC machine — right column top */}
-          <ShopCard
-            src="/images/cnc-machine.jpg"
-            alt="CNC machining center"
-            eyebrow="CNC Machine Shop"
-            title="Multi‑axis CNC"
-            body="3, 4, and 5‑axis machining in titanium, stainless, and aluminum — prototype to production, all inspected and traceable."
-            icon={Wrench}
-          />
+          <ShopCard src="/images/cnc-machine.jpg" copy={t.cnc} icon={Wrench} />
 
           {/* 3D scanner — right column bottom */}
-          <ShopCard
-            src="/images/3d-scanner.jpg"
-            alt="Structured‑light 3D scanner on an aircraft control surface"
-            eyebrow="3D Scanning"
-            title="Sub‑millimeter damage mapping"
-            body="Structured‑light capture maps surface damage, wear, and deformation to sub‑millimeter precision — inspection findings become real measurements, not estimates. Same workflow drives reverse engineering of obsolete parts into PMA‑ready CAD."
-            icon={ScanLine}
-            variant="teal"
-          />
+          <ShopCard src="/images/3d-scanner.jpg" copy={t.scanner} icon={ScanLine} variant="teal" />
         </div>
       </div>
     </section>
   );
 }
 
-function FacilityCard() {
+function FacilityCard({ copy }: { copy: ShopCopy["facility"] }) {
   return (
     <motion.figure
       initial={{ opacity: 0, y: 18 }}
@@ -63,10 +50,9 @@ function FacilityCard() {
       <div className="relative aspect-[4/3] lg:aspect-auto lg:h-full">
         <Image
           src="/images/facility-aerial.jpg"
-          alt="FLG Technics facility — overhead view of the shop floor"
+          alt={copy.alt}
           fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 66vw"
+          sizes="(max-width: 1024px) 100vw, 840px"
           className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.02]"
         />
 
@@ -83,14 +69,14 @@ function FacilityCard() {
       <figcaption className="absolute bottom-0 inset-x-0 p-6 md:p-8 flex flex-wrap items-end justify-between gap-4 pointer-events-none">
         <div>
           <div className="font-mono text-[11px] tracking-[0.22em] uppercase text-accent">
-            Miramar, FL · HQ
+            {copy.location}
           </div>
-          <div className="mt-2 font-display text-2xl md:text-3xl font-semibold text-slate-50 tracking-tight">
-            Our floor.
-          </div>
+          <h3 className="mt-2 font-display text-2xl md:text-3xl font-semibold text-slate-50 tracking-tight">
+            {copy.title}
+          </h3>
         </div>
-        <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-slate-400 px-2.5 py-1 rounded-full border border-white/10 bg-ink-950/50 backdrop-blur-sm">
-          75,000 sq ft · FAA 145
+        <div className="font-mono text-[11px] tracking-[0.2em] uppercase text-slate-400 px-2.5 py-1 rounded-full border border-white/10 bg-ink-950/50 backdrop-blur-sm">
+          {copy.chip}
         </div>
       </figcaption>
     </motion.figure>
@@ -99,19 +85,13 @@ function FacilityCard() {
 
 function ShopCard({
   src,
-  alt,
-  eyebrow,
-  title,
-  body,
+  copy,
   icon: Icon,
   variant = "accent",
 }: {
   src: string;
-  alt: string;
-  eyebrow: string;
-  title: string;
-  body: string;
-  icon: React.ComponentType<{ className?: string }>;
+  copy: ShopCopy["cnc"];
+  icon: React.ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
   variant?: "accent" | "teal";
 }) {
   const isTeal = variant === "teal";
@@ -129,26 +109,26 @@ function ShopCard({
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
           src={src}
-          alt={alt}
+          alt={copy.alt}
           fill
-          sizes="(max-width: 1024px) 100vw, 33vw"
+          sizes="(max-width: 1024px) 100vw, 420px"
           className="object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.04]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-950/80 via-ink-950/20 to-transparent" />
         <div className="absolute top-3 left-3 flex items-center gap-2">
           <div className={`w-8 h-8 rounded-lg bg-ink-950/80 border backdrop-blur-sm flex items-center justify-center ${borderCls}`}>
-            <Icon className={`w-4 h-4 ${textCls}`} />
+            <Icon aria-hidden className={`w-4 h-4 ${textCls}`} />
           </div>
-          <span className={`font-mono text-[10px] tracking-[0.22em] uppercase ${eyebrowCls}`}>
-            {eyebrow}
+          <span className={`font-mono text-[11px] tracking-[0.22em] uppercase ${eyebrowCls}`}>
+            {copy.eyebrow}
           </span>
         </div>
       </div>
       <figcaption className="p-5">
-        <div className="font-display text-lg font-semibold text-slate-100 tracking-tight">
-          {title}
-        </div>
-        <p className="mt-1.5 text-sm text-slate-400 leading-relaxed">{body}</p>
+        <h3 className="font-display text-lg font-semibold text-slate-100 tracking-tight">
+          {copy.title}
+        </h3>
+        <p className="mt-1.5 text-sm text-slate-400 leading-relaxed">{copy.body}</p>
       </figcaption>
     </motion.figure>
   );

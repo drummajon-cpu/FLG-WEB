@@ -8,6 +8,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Tailwind's stock slate-500 (#64748B) is 4.2:1 on ink-950 and fails WCAG AA
+        // for the small mono labels it is used on throughout the site. This value is
+        // 5.5:1 on ink-950 and 5.3:1 on ink-900, and still sits clearly below
+        // slate-400, so the label / body hierarchy is unchanged.
+        slate: { 500: "#7687A0" },
         ink: {
           950: "#05070A",
           900: "#0A0D12",

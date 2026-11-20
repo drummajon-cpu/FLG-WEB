@@ -1,30 +1,36 @@
-"use client";
-
-import { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { ArrowRight, ShieldCheck, Flame } from "lucide-react";
-
-const EASE = [0.23, 1, 0.32, 1] as const;
+import { ArrowRight, Phone, Flame } from "lucide-react";
+import { heroCopy } from "@/data/home/core";
+import { localePath, type Locale } from "@/lib/i18n";
+import { SITE } from "@/lib/site";
 
 // Same switch as the nav (components/Nav.tsx): set in Vercel when /inventory is public.
 const showInventory = process.env.NEXT_PUBLIC_SHOW_INVENTORY_LINK === "1";
 
-export default function Hero() {
+// A server component on purpose. The headline is the page's largest paint: it used to
+// be a framer-motion element rendered at opacity 0, so nothing showed until the
+// JavaScript had downloaded and hydrated. Now the headline is plain HTML that paints
+// with the first frame, and the supporting rows fade up with a CSS animation
+// (.hero-rise in globals.css) that needs no JavaScript and collapses under
+// prefers-reduced-motion.
+export default function Hero({ locale = "en" }: { locale?: Locale }) {
+  const t = heroCopy[locale];
   return (
-    <section id="top" className="relative min-h-[100svh] flex items-center pt-28 pb-24 overflow-hidden">
+    <section id="top" className="relative min-h-[calc(100svh-2.25rem)] flex items-center pt-28 pb-24 overflow-hidden">
       {/* Background layers */}
       <div aria-hidden className="absolute inset-0 bg-grid opacity-60 mask-radial" />
       <div aria-hidden className="absolute inset-0 bg-grid-fine opacity-40 mask-radial" />
 
-      {/* Ambient glow */}
-      <div aria-hidden className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full bg-accent-deep/10 blur-[120px]" />
-      {/*
-        This teal glow used to be a blurred circle sitting flush with the
-        section's bottom edge. The section is overflow-hidden, so exactly half
-        of its gaussian was cut off — the glow stopped dead at ~50% strength
-        where TrustedBy begins, an ~8.9/255 step. A radial gradient that reaches
-        zero at the edge has nothing to clip.
-      */}
+      {/* Ambient glows. Radial gradients that reach zero at their own edge: a blurred
+          circle here would be clipped by the section's overflow-hidden and costs a
+          900px blur layer on every phone. */}
+      <div
+        aria-hidden
+        className="absolute -top-64 left-1/2 -translate-x-1/2 h-[1200px] w-[1200px]"
+        style={{
+          background:
+            "radial-gradient(50% 50% at 50% 50%, rgba(14,165,233,0.10) 0%, rgba(14,165,233,0.05) 45%, rgba(14,165,233,0) 100%)",
+        }}
+      />
       <div
         aria-hidden
         className="absolute bottom-0 left-1/4 h-[700px] w-[900px]"
@@ -43,63 +49,40 @@ export default function Hero() {
       <Corners />
 
       <div className="relative max-w-7xl mx-auto px-6 w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="flex flex-wrap items-center gap-2"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-sm">
-            <span className="relative flex h-2 w-2">
+        <div className="hero-rise flex flex-wrap items-center gap-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/[0.03]">
+            <span className="relative flex h-2 w-2" aria-hidden>
               <span className="animate-ping-slow absolute inline-flex h-full w-full rounded-full bg-accent" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
             <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-slate-300">
-              FAA Part 145 · EASA · UK CAA
+              {t.badgeApprovals}
             </span>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-teal/30 bg-teal/[0.07] backdrop-blur-sm">
-            <Flame className="w-3.5 h-3.5 text-teal-bright" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-teal/30 bg-teal/[0.07]">
+            <Flame className="w-3.5 h-3.5 text-teal-bright" aria-hidden />
             <span className="font-mono text-[11px] tracking-[0.18em] uppercase text-teal-bright">
-              AWS D17.1 Certified Welding
+              {t.badgeWelding}
             </span>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.08, ease: EASE }}
-          className="mt-6 font-display font-semibold tracking-[-0.03em] text-[clamp(2.6rem,7vw,5.75rem)] leading-[0.95] text-slate-50 text-glow"
-        >
-          One MRO for your
+        <h1 className="mt-6 font-display font-semibold tracking-[-0.03em] text-[clamp(2.6rem,7vw,5.75rem)] leading-[0.95] text-slate-50 text-glow">
+          {t.h1Lead}
           <br />
-          <span className="text-accent">flight‑critical</span> systems that keep you flying.
-        </motion.h1>
+          <span className="text-accent">{t.h1Accent}</span> {t.h1Tail}
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.18, ease: EASE }}
-          className="mt-7 max-w-2xl text-lg md:text-xl text-slate-400 leading-relaxed"
-        >
-          Full‑service repair, in‑house engineering, reverse engineering and PMA development
-          for commercial and regional aircraft. Since 1998 — based in South Florida, trusted worldwide.
-        </motion.p>
+        <p className="mt-7 max-w-2xl text-lg md:text-xl text-slate-400 leading-relaxed">{t.body}</p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.26, ease: EASE }}
-          className="mt-10 flex flex-wrap items-center gap-3"
-        >
+        <div className="hero-rise mt-10 flex flex-wrap items-center gap-3" style={{ animationDelay: "120ms" }}>
           <a
             href="#contact"
             className="press group inline-flex items-center gap-3 pl-6 pr-2 py-2.5 rounded-full bg-accent hover:bg-accent-bright text-ink-950 font-medium shadow-[0_0_0_1px_rgba(125,211,252,0.4),0_12px_40px_-10px_rgba(56,189,248,0.5)]"
           >
-            Request a Quote
+            {t.quote}
             <span className="flex items-center justify-center w-8 h-8 rounded-full bg-ink-950/15 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-0.5 group-hover:-translate-y-px group-hover:scale-105">
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4" aria-hidden />
             </span>
           </a>
           {/* Parts buyers go to the live inventory; repair work stays on Request a Quote.
@@ -110,91 +93,47 @@ export default function Hero() {
           >
             {showInventory ? (
               <>
-                Search Parts Inventory
+                {t.inventory}
                 <ArrowRight className="w-4 h-4" aria-hidden />
               </>
             ) : (
-              "Explore Capabilities"
+              t.capabilities
             )}
           </a>
-          <div className="hidden md:flex items-center gap-2 pl-3 ml-2 border-l border-white/10 text-sm text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-accent" />
-            <span>24/7 AOG support</span>
-          </div>
-        </motion.div>
+          <a
+            href={SITE.aog.href}
+            className="press inline-flex items-center gap-2 px-3 py-3 text-sm text-slate-300 hover:text-white rounded-md"
+          >
+            <Phone className="w-4 h-4 text-accent" aria-hidden />
+            <span>
+              {t.aog} <span className="font-medium text-slate-100">{SITE.aog.display}</span>
+            </span>
+          </a>
+        </div>
 
         {/* Stats strip — double-bezel machined tray */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.4, ease: EASE }}
-          className="mt-20 rounded-[1.5rem] p-1.5 bg-white/[0.03] ring-1 ring-white/10 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)]"
+        <div
+          className="hero-rise mt-16 md:mt-20 rounded-[1.5rem] p-1.5 bg-white/[0.03] ring-1 ring-white/10 shadow-[0_10px_40px_-16px_rgba(0,0,0,0.6)]"
+          style={{ animationDelay: "220ms" }}
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5 rounded-[1.125rem] overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
-            {[
-              { target: 28, suffix: "+", label: "Years in service" },
-              { target: 75, suffix: "k", label: "Sq ft MRO facility" },
-              { text: "24/7", label: "AOG response" },
-              { target: 4, suffix: "", label: "Aviation approvals" },
-            ].map((s, i) => (
+          <dl className="grid grid-cols-2 md:grid-cols-4 gap-px bg-white/5 rounded-[1.125rem] overflow-hidden shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
+            {t.stats.map((s) => (
               <div
                 key={s.label}
-                className="group/stat bg-ink-900/60 hover:bg-ink-900/90 transition-colors duration-300 backdrop-blur-sm px-6 py-6"
+                className="group/stat flex flex-col-reverse justify-end bg-ink-900/80 hover:bg-ink-900 transition-colors duration-300 px-6 py-6"
               >
-                <div className="font-display text-3xl md:text-4xl font-semibold text-slate-100 tracking-tight">
-                  {"text" in s ? s.text : <Counter target={s.target!} suffix={s.suffix!} delay={i * 120} />}
-                </div>
-                <div className="mt-1 text-xs uppercase tracking-wider font-mono text-slate-500 group-hover/stat:text-slate-400 transition-colors">
+                <dt className="mt-1 text-xs uppercase tracking-wider font-mono text-slate-500 group-hover/stat:text-slate-400 transition-colors">
                   {s.label}
-                </div>
+                </dt>
+                <dd className="font-display text-3xl md:text-4xl font-semibold text-slate-100 tracking-tight tabular-nums">
+                  {s.value}
+                </dd>
               </div>
             ))}
-          </div>
-        </motion.div>
+          </dl>
+        </div>
       </div>
     </section>
-  );
-}
-
-function Counter({
-  target,
-  suffix,
-  delay = 0,
-}: {
-  target: number;
-  suffix: string;
-  delay?: number;
-}) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    if (!inView) return;
-    const duration = 900;
-    const startTime = performance.now() + delay;
-    let raf = 0;
-    const tick = (now: number) => {
-      if (now < startTime) {
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-      const elapsed = Math.min(now - startTime, duration);
-      const progress = elapsed / duration;
-      // Strong ease-out (cubic-bezier 0.23, 1, 0.32, 1 approximated)
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setValue(Math.round(target * eased));
-      if (elapsed < duration) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [inView, target, delay]);
-
-  return (
-    <span ref={ref} className="tabular-nums">
-      {value}
-      {suffix}
-    </span>
   );
 }
 

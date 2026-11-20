@@ -141,7 +141,7 @@ export const services: Service[] = [
       },
       {
         title: "Obsolete parts, solved",
-        body: "When an OEM part is discontinued, we reverse‑engineer it from a 3D scan, machine fixtures on our own CNC equipment and get the repair DER‑approved on an 8110‑3, as we did for an A330 APU muffler bracket.",
+        body: "When an OEM part is discontinued, we can reverse‑engineer it from a 3D scan, machine fixtures on our own CNC equipment and take the repair through DER approval on an 8110‑3.",
       },
       {
         title: "One floor, start to finish",
@@ -151,7 +151,7 @@ export const services: Service[] = [
     images: [
       {
         src: "/images/work/A330 Muffler.jpg",
-        alt: "Airbus A330 APU muffler repaired at FLG Technics",
+        alt: "Airbus A330 APU muffler at FLG Technics",
         caption: "Airbus A330 APU muffler · Inconel, titanium flange",
       },
       {
@@ -616,7 +616,7 @@ export const services: Service[] = [
       },
       {
         title: "Obsolete parts, solved",
-        body: "When an OEM bracket for an A330 APU muffler was discontinued, we reverse‑engineered it from a 3D scan, machined it in‑house and got the repair DER‑approved on an 8110‑3.",
+        body: "When an OEM part is discontinued, we can reverse‑engineer it from a 3D scan, machine it in‑house and take the repair through DER approval on an 8110‑3.",
       },
       {
         title: "EASA and UK CAA release",
@@ -631,7 +631,7 @@ export const services: Service[] = [
       },
       {
         src: "/images/work/A330 Muffler.jpg",
-        alt: "Airbus A330 APU muffler repaired at FLG Technics",
+        alt: "Airbus A330 APU muffler at FLG Technics",
         caption: "Airbus A330 APU muffler · Inconel, titanium flange",
       },
     ],

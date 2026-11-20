@@ -19,6 +19,8 @@ import {
   ShieldCheck,
   Target,
 } from "lucide-react";
+import { globeCopy } from "@/data/home/sections-c";
+import type { Locale } from "@/lib/i18n";
 
 /**
  * ExcellenceGlobe — the "Excellence in everything we do" panorama.
@@ -107,80 +109,25 @@ const ICONS: { x: number; y: number; r: number }[] = [
 ];
 
 /**
- * The thirteen capabilities, transcribed from the artwork. This is the mobile
- * reading surface, so it has to stay in step with the graphic — if the artwork
- * is ever re-rendered with different wording, update these too.
+ * Icons for the thirteen capabilities, in the order of
+ * `globeCopy[locale].capabilities` (data/home/sections-c.ts). That list is the
+ * real-text reading surface, so its English wording has to stay in step with
+ * the graphic.
  */
-const CAPABILITIES: {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
-  body: string;
-}[] = [
-  {
-    icon: Crosshair,
-    title: "Precision in every repair",
-    body: "Exacting standards and meticulous attention to every detail.",
-  },
-  {
-    icon: Target,
-    title: "Where reliability takes off",
-    body: "Proven processes that keep your operation moving forward.",
-  },
-  {
-    icon: Award,
-    title: "Excellence engineered",
-    body: "Built-in quality from the first inspection to final release.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Confidence in every flight",
-    body: "Reliable repairs that meet or exceed OEM standards.",
-  },
-  {
-    icon: Layers,
-    title: "Mastery in composites",
-    body: "Advanced composite repairs with confidence.",
-  },
-  {
-    icon: Puzzle,
-    title: "Flight ready solutions",
-    body: "Delivering parts that are ready when you are.",
-  },
-  {
-    icon: Plane,
-    title: "Your trusted MRO partner",
-    body: "A partner you can count on, every step of the way.",
-  },
-  {
-    icon: Hexagon,
-    title: "Advanced MRO expertise",
-    body: "Decades of experience across a wide range of components.",
-  },
-  {
-    icon: Gauge,
-    title: "Flight critical expertise",
-    body: "Trusted expertise for your most critical components.",
-  },
-  {
-    icon: Frame,
-    title: "Excellence in structures",
-    body: "Structural repairs you can depend on.",
-  },
-  {
-    icon: Shield,
-    title: "Safety delivered",
-    body: "Safety is designed into everything we do.",
-  },
-  {
-    icon: Fan,
-    title: "The MRO that protects every flight",
-    body: "We protect your aircraft and your reputation.",
-  },
-  {
-    icon: Compass,
-    title: "Composite & structural precision",
-    body: "Combining advanced materials knowledge with structural precision.",
-  },
+const CAPABILITY_ICONS: ComponentType<{ className?: string }>[] = [
+  Crosshair,
+  Target,
+  Award,
+  ShieldCheck,
+  Layers,
+  Puzzle,
+  Plane,
+  Hexagon,
+  Gauge,
+  Frame,
+  Shield,
+  Fan,
+  Compass,
 ];
 
 /**
@@ -405,7 +352,13 @@ function GlobeOverlay({ idPrefix }: { idPrefix: string }) {
   );
 }
 
-export default function ExcellenceGlobe() {
+export default function ExcellenceGlobe({ locale = "en" }: { locale?: Locale }) {
+  const t = globeCopy[locale];
+  // The desktop (xl+) layout is a single raster with its English headline and
+  // captions baked into the pixels, so it cannot be translated. Any other
+  // language gets the real-text layout at every width and the artwork stage is
+  // not rendered at all.
+  const artwork = locale === "en";
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const nearRef = useRef<HTMLDivElement>(null);
@@ -520,29 +473,43 @@ export default function ExcellenceGlobe() {
             tablet and ~9px at 1280. Below xl the globe is cropped out as the
             visual and the copy is set as real text instead.
            --------------------------------------------------------------- */}
-        <div className="mx-auto max-w-5xl xl:hidden">
-          <div className="mx-auto mb-7 w-[132px]">
+        {/* Where the artwork takes over at xl, the logo and cropped globe are
+            removed (display:none) but the heading, tagline and list are only
+            visually hidden (sr-only): the artwork's text is pixels, so this is
+            the copy assistive tech reads at that size. */}
+        <div className="mx-auto max-w-5xl">
+          <div className={`mx-auto mb-7 w-[132px] ${artwork ? "xl:hidden" : ""}`}>
             <Image
               src="/images/flg-logo-one-mro.png"
-              alt="FLG Technics — One MRO"
-              width={420}
-              height={190}
+              alt={t.logoAlt}
+              width={639}
+              height={297}
+              sizes="132px"
               className="h-auto w-full"
             />
           </div>
 
-          <h2 className="text-center font-display text-[clamp(1.6rem,7.2vw,2.4rem)] font-semibold uppercase leading-[1.08] tracking-[-0.02em] text-slate-50">
-            <span className="text-accent">Excellence</span> in everything we do
+          <h2
+            className={`text-center font-display text-[clamp(1.6rem,7.2vw,2.4rem)] font-semibold uppercase leading-[1.08] tracking-[-0.02em] text-slate-50 ${
+              artwork ? "xl:sr-only" : ""
+            }`}
+          >
+            <span className="text-accent">{t.titleAccent}</span>
+            {t.titleRest}
           </h2>
-          <p className="mx-auto mt-3 max-w-[30rem] text-center text-[0.95rem] leading-relaxed text-slate-300">
-            Global expertise. Proven processes. Uncompromising quality.
+          <p
+            className={`mx-auto mt-3 max-w-[30rem] text-center text-[0.95rem] leading-relaxed text-slate-300 ${
+              artwork ? "xl:sr-only" : ""
+            }`}
+          >
+            {t.subtitle}
           </p>
 
           {/* The globe, cropped from the artwork. The inner box carries the
               whole 1536x1024 frame, scaled and shifted so CROP fills the
               window — which keeps the SVG overlay perfectly in register. */}
           <div
-            className="eg-mobile-globe relative mt-8 w-full overflow-hidden"
+            className={`eg-mobile-globe relative mt-8 w-full overflow-hidden ${artwork ? "xl:hidden" : ""}`}
             style={{ aspectRatio: `${CROP.w} / ${CROP.h}` }}
           >
             <div
@@ -566,144 +533,158 @@ export default function ExcellenceGlobe() {
             </div>
           </div>
 
-          <ul className="mt-9 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-            {CAPABILITIES.map(({ icon: Icon, title, body }) => (
-              <li key={title} className="flex gap-3.5">
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-teal/40 bg-ink-900/60">
-                  <Icon className="h-[18px] w-[18px] text-teal-bright" />
-                </span>
-                <div className="min-w-0">
-                  <h3 className="font-display text-[0.95rem] font-semibold uppercase leading-snug text-slate-50">
-                    {title}
-                  </h3>
-                  <p className="mt-1 text-[0.875rem] leading-relaxed text-slate-400">
-                    {body}
-                  </p>
-                </div>
-              </li>
-            ))}
+          <ul
+            className={`mt-9 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 ${
+              artwork ? "xl:sr-only" : ""
+            }`}
+          >
+            {t.capabilities.map(({ title, body }, i) => {
+              const Icon = CAPABILITY_ICONS[i];
+              return (
+                <li key={title} className="flex gap-3.5">
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-teal/40 bg-ink-900/60"
+                  >
+                    <Icon className="h-[18px] w-[18px] text-teal-bright" />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="font-display text-[0.95rem] font-semibold uppercase leading-snug text-slate-50">
+                      {title}
+                    </h3>
+                    <p className="mt-1 text-[0.875rem] leading-relaxed text-slate-400">
+                      {body}
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
 
         {/* ---------------------------------------------------------------
-            1280px and up — the artwork at full size, where its captions finally
-            reach a legible ~11-13px, with the overlays locked to its geometry.
+            1280px and up, English only — the artwork at full size, where its
+            captions finally reach a legible ~11-13px, with the overlays locked
+            to its geometry. Its alt is empty because the same words are exposed
+            as real (sr-only) text just above.
            --------------------------------------------------------------- */}
-        <div
-          ref={stageRef}
-          className="eg-stage relative hidden w-full overflow-hidden xl:block"
-        >
-          {/* Near plane — the artwork, plus every overlay locked to its geometry. */}
-          <div ref={nearRef} className="eg-plane relative">
-            <Image
-              src="/images/excellence-globe.png"
-              alt="FLG Technics — excellence in everything we do. Global expertise, proven processes and uncompromising quality, shown across thirteen MRO capability areas arranged around a connected globe."
-              width={VB_W}
-              height={VB_H}
-              sizes="(max-width: 1536px) 100vw, 1536px"
-              className="block h-auto w-full select-none"
-            />
-            <GlobeOverlay idPrefix="egD" />
-          </div>
-
-          {/* Far plane — HUD rings and distant particles, drifting against the
-              artwork to give the section a shallow sense of depth. */}
+        {artwork && (
           <div
-            ref={farRef}
-            className="eg-plane pointer-events-none absolute inset-0"
+            ref={stageRef}
+            className="eg-stage relative hidden w-full overflow-hidden xl:block"
           >
-            <svg
-              viewBox={`0 0 ${VB_W} ${VB_H}`}
-              aria-hidden="true"
-              focusable="false"
-              className="absolute inset-0 h-full w-full"
-            >
-              <defs>
-                <linearGradient id="egRingFade" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0.30" stopColor="#fff" stopOpacity="0" />
-                  <stop offset="0.42" stopColor="#fff" stopOpacity="1" />
-                  <stop offset="0.65" stopColor="#fff" stopOpacity="0.55" />
-                  <stop offset="0.80" stopColor="#fff" stopOpacity="0" />
-                </linearGradient>
-                <mask id="egRingMask">
-                  <rect width={VB_W} height={VB_H} fill="url(#egRingFade)" />
-                </mask>
-              </defs>
-
-              {/* HUD rings — counter-rotating and deliberately almost invisible.
-                  Masked out before they reach the caption rows. */}
-              <g mask="url(#egRingMask)">
-                <circle
-                  cx={GLOBE.cx}
-                  cy={GLOBE.cy}
-                  r={480}
-                  className="eg-anim eg-ring"
-                  fill="none"
-                  stroke="#7DD3FC"
-                  strokeWidth={1}
-                  strokeOpacity={0.16}
-                  strokeDasharray="2 26"
-                  strokeLinecap="round"
-                  style={{ "--eg-dur": "150s" } as CSSProperties}
-                />
-                <circle
-                  cx={GLOBE.cx}
-                  cy={GLOBE.cy}
-                  r={522}
-                  className="eg-anim eg-ring-rev"
-                  fill="none"
-                  stroke="#5ED4C3"
-                  strokeWidth={1}
-                  strokeOpacity={0.12}
-                  strokeDasharray="1 44"
-                  strokeLinecap="round"
-                  style={{ "--eg-dur": "195s" } as CSSProperties}
-                />
-              </g>
-
-              {/* Distant data points. */}
-              <g>
-                {PARTICLES.map((p, i) => (
-                  <circle
-                    key={i}
-                    cx={p.x}
-                    cy={p.y}
-                    r={p.r}
-                    className="eg-anim eg-particle"
-                    fill={i % 3 === 0 ? "#5ED4C3" : "#9BDDFB"}
-                    style={
-                      {
-                        "--eg-dur": `${p.dur}s`,
-                        "--eg-delay": `${p.delay}s`,
-                        "--eg-dx": `${p.dx}px`,
-                        "--eg-dy": `${p.dy}px`,
-                        "--eg-lo": `${p.o * 0.35}`,
-                        "--eg-hi": `${p.o}`,
-                      } as CSSProperties
-                    }
-                  />
-                ))}
-              </g>
-            </svg>
-          </div>
-
-          {/* Icon hover — brightens the teal ring that is already drawn and lays
-              a soft glow just outside it. The icon itself never moves. */}
-          <div className="absolute inset-0">
-            {ICONS.map((ic, i) => (
-              <span
-                key={i}
-                aria-hidden="true"
-                className="eg-hotspot"
-                style={{
-                  left: `${(ic.x / VB_W) * 100}%`,
-                  top: `${(ic.y / VB_H) * 100}%`,
-                  width: `${((ic.r * 2) / VB_W) * 100}%`,
-                }}
+            {/* Near plane — the artwork, plus every overlay locked to its geometry. */}
+            <div ref={nearRef} className="eg-plane relative">
+              <Image
+                src="/images/excellence-globe.png"
+                alt=""
+                width={VB_W}
+                height={VB_H}
+                sizes="(max-width: 1536px) 100vw, 1536px"
+                className="block h-auto w-full select-none"
               />
-            ))}
+              <GlobeOverlay idPrefix="egD" />
+            </div>
+
+            {/* Far plane — HUD rings and distant particles, drifting against the
+                artwork to give the section a shallow sense of depth. */}
+            <div
+              ref={farRef}
+              className="eg-plane pointer-events-none absolute inset-0"
+            >
+              <svg
+                viewBox={`0 0 ${VB_W} ${VB_H}`}
+                aria-hidden="true"
+                focusable="false"
+                className="absolute inset-0 h-full w-full"
+              >
+                <defs>
+                  <linearGradient id="egRingFade" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0.30" stopColor="#fff" stopOpacity="0" />
+                    <stop offset="0.42" stopColor="#fff" stopOpacity="1" />
+                    <stop offset="0.65" stopColor="#fff" stopOpacity="0.55" />
+                    <stop offset="0.80" stopColor="#fff" stopOpacity="0" />
+                  </linearGradient>
+                  <mask id="egRingMask">
+                    <rect width={VB_W} height={VB_H} fill="url(#egRingFade)" />
+                  </mask>
+                </defs>
+
+                {/* HUD rings — counter-rotating and deliberately almost invisible.
+                    Masked out before they reach the caption rows. */}
+                <g mask="url(#egRingMask)">
+                  <circle
+                    cx={GLOBE.cx}
+                    cy={GLOBE.cy}
+                    r={480}
+                    className="eg-anim eg-ring"
+                    fill="none"
+                    stroke="#7DD3FC"
+                    strokeWidth={1}
+                    strokeOpacity={0.16}
+                    strokeDasharray="2 26"
+                    strokeLinecap="round"
+                    style={{ "--eg-dur": "150s" } as CSSProperties}
+                  />
+                  <circle
+                    cx={GLOBE.cx}
+                    cy={GLOBE.cy}
+                    r={522}
+                    className="eg-anim eg-ring-rev"
+                    fill="none"
+                    stroke="#5ED4C3"
+                    strokeWidth={1}
+                    strokeOpacity={0.12}
+                    strokeDasharray="1 44"
+                    strokeLinecap="round"
+                    style={{ "--eg-dur": "195s" } as CSSProperties}
+                  />
+                </g>
+
+                {/* Distant data points. */}
+                <g>
+                  {PARTICLES.map((p, i) => (
+                    <circle
+                      key={i}
+                      cx={p.x}
+                      cy={p.y}
+                      r={p.r}
+                      className="eg-anim eg-particle"
+                      fill={i % 3 === 0 ? "#5ED4C3" : "#9BDDFB"}
+                      style={
+                        {
+                          "--eg-dur": `${p.dur}s`,
+                          "--eg-delay": `${p.delay}s`,
+                          "--eg-dx": `${p.dx}px`,
+                          "--eg-dy": `${p.dy}px`,
+                          "--eg-lo": `${p.o * 0.35}`,
+                          "--eg-hi": `${p.o}`,
+                        } as CSSProperties
+                      }
+                    />
+                  ))}
+                </g>
+              </svg>
+            </div>
+
+            {/* Icon hover — brightens the teal ring that is already drawn and lays
+                a soft glow just outside it. The icon itself never moves. */}
+            <div className="absolute inset-0">
+              {ICONS.map((ic, i) => (
+                <span
+                  key={i}
+                  aria-hidden="true"
+                  className="eg-hotspot"
+                  style={{
+                    left: `${(ic.x / VB_W) * 100}%`,
+                    top: `${(ic.y / VB_H) * 100}%`,
+                    width: `${((ic.r * 2) / VB_W) * 100}%`,
+                  }}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </motion.div>
     </section>
   );

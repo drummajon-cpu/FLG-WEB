@@ -71,5 +71,8 @@ export const config = {
     "/static/flg_technics_logo.png",
     "/static/live-inventory/:path*",
     "/api/public/careers/:path*",
+    // Repair quote requests from the contact form (components/RfqForm.tsx). Until EZRP
+    // serves these paths it answers 404 and the form falls back to email.
+    "/api/public/rfq/:path*",
   ],
 };
