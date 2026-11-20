@@ -1,6 +1,6 @@
 # Spanish strings for native review
 
-755 string pairs. Edit the Spanish in the file named in each heading's copy source: `data/home/core.ts`, `data/home/sections-a.ts`, `sections-b.ts`, `sections-c.ts`, `data/faq.ts`, `data/services.es.ts`, `components/AogBar.tsx`, `components/RootShell.tsx`, `app/(es)/layout.tsx`.
+756 string pairs. Edit the Spanish in the file named in each heading's copy source: `data/home/core.ts`, `data/home/sections-a.ts`, `sections-b.ts`, `sections-c.ts`, `data/faq.ts`, `data/services.es.ts`, `components/AogBar.tsx`, `components/RootShell.tsx`, `app/(es)/layout.tsx`.
 
 Terms kept in English on purpose: DER, PMA, AOG, MRO, RFQ, CNC, NDT, CFRP, SRM, CMM, LRU, TIG, APU, FAA Part 145, EASA, UK CAA, AWS D17.1, 8110‑3, 8130‑3, aircraft and material designations.
 
@@ -80,7 +80,8 @@ Terms kept in English on purpose: DER, PMA, AOG, MRO, RFQ, CNC, NDT, CFRP, SRM, 
 | `rfq.photosRemove` | Remove | Quitar |
 | `rfq.aog` | Is this an AOG? | ¿Es un AOG? |
 | `rfq.yes` | Yes | Sí |
-| `rfq.aogNote` | For an aircraft on ground, call the AOG line now as well: | Si tiene una aeronave en tierra, llame también ahora a la línea AOG: |
+| `rfq.aogNote` | Aircraft on ground? Don’t wait on this form. Call our AOG desk as well. | ¿Aeronave en tierra? No espere a este formulario. Llame también a nuestra línea AOG. |
+| `rfq.aogCall` | Call AOG 24/7 | Llamar a AOG 24/7 |
 | `rfq.optional` | optional | opcional |
 | `rfq.submit` | Send request | Enviar solicitud |
 | `rfq.errorSummary` | Please check the highlighted fields. | Revise los campos resaltados. |
