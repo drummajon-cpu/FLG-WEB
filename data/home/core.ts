@@ -154,8 +154,6 @@ export const contactCopy = {
       errPhotosRejected: "The photos were too large or too many. Please remove some and send again.",
       errTooManyPhotos: (max: number) => `Please attach no more than ${max === 1 ? "1 photo" : `${max} photos`}.`,
       errPhotoTooLarge: (name: string, limit: string) => `${name} is larger than ${limit}. Please remove it or send a smaller copy.`,
-      subject: "Quote request",
-      aogTag: "AOG",
     },
   },
   es: {
@@ -213,8 +211,6 @@ export const contactCopy = {
       errPhotosRejected: "Las fotos son demasiado grandes o demasiadas. Quite algunas y vuelva a enviar.",
       errTooManyPhotos: (max: number) => `Adjunte como máximo ${max === 1 ? "1 foto" : `${max} fotos`}.`,
       errPhotoTooLarge: (name: string, limit: string) => `${name} supera los ${limit}. Quítela o envíe una copia más pequeña.`,
-      subject: "Solicitud de cotización",
-      aogTag: "AOG",
     },
   },
 } as const;

@@ -1,6 +1,6 @@
 # Spanish strings for native review
 
-756 string pairs. Edit the Spanish in the file named in each heading's copy source: `data/home/core.ts`, `data/home/sections-a.ts`, `sections-b.ts`, `sections-c.ts`, `data/faq.ts`, `data/services.es.ts`, `components/AogBar.tsx`, `components/RootShell.tsx`, `app/(es)/layout.tsx`.
+755 string pairs. Edit the Spanish in the file named in each heading's copy source: `data/home/core.ts`, `data/home/sections-a.ts`, `sections-b.ts`, `sections-c.ts`, `data/faq.ts`, `data/services.es.ts`, `components/AogBar.tsx`, `components/RootShell.tsx`, `app/(es)/layout.tsx`.
 
 Terms kept in English on purpose: DER, PMA, AOG, MRO, RFQ, CNC, NDT, CFRP, SRM, CMM, LRU, TIG, APU, FAA Part 145, EASA, UK CAA, AWS D17.1, 8110‑3, 8130‑3, aircraft and material designations.
 
@@ -102,7 +102,6 @@ Terms kept in English on purpose: DER, PMA, AOG, MRO, RFQ, CNC, NDT, CFRP, SRM, 
 | `rfq.errTooManyPhotos(1)` | Please attach no more than 1 photo. | Adjunte como máximo 1 foto. |
 | `rfq.errTooManyPhotos(3)` | Please attach no more than 3 photos. | Adjunte como máximo 3 fotos. |
 | `rfq.errPhotoTooLarge` | {file} is larger than {limit}. Please remove it or send a smaller copy. | {file} supera los {limit}. Quítela o envíe una copia más pequeña. |
-| `rfq.subject` | Quote request | Solicitud de cotización |
 
 ### Site chrome: footerCopy
 

@@ -5,6 +5,7 @@ import { AlertTriangle, ArrowRight, CheckCircle2, ImagePlus, Loader2, Phone, X }
 import { AIRCRAFT_OPTIONS, contactCopy } from "@/data/home/core";
 import type { Locale } from "@/lib/i18n";
 import { SITE } from "@/lib/site";
+import { buildRfqMailto, type RfqFields } from "@/lib/rfqMailto";
 
 // Quote request (RFQ) form. A request goes out two ways, as the owner asked:
 //
@@ -123,17 +124,7 @@ function mb(bytes: number): string {
   return `${Math.round(bytes / (1024 * 1024))} MB`;
 }
 
-type Fields = {
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  partNumber: string;
-  serialNumber: string;
-  aircraft: string;
-  damage: string;
-  aog: "yes" | "no";
-};
+type Fields = RfqFields;
 
 const EMPTY: Fields = {
   name: "",
@@ -165,28 +156,11 @@ const inputCls =
   "w-full rounded-md border border-white/10 bg-ink-900/70 px-3.5 py-2.5 text-[15px] text-slate-100 placeholder:text-slate-500 outline-none transition-[border-color,background-color,box-shadow] duration-150 focus:border-accent/70 focus:bg-ink-900 focus:ring-2 focus:ring-accent/40 aria-[invalid=true]:border-red-400/70";
 const labelCls = "block font-mono text-[11px] tracking-[0.16em] uppercase text-slate-400 mb-1.5";
 
-type RfqCopy = (typeof contactCopy)[Locale]["rfq"];
 
-/** The email hand-off: open the visitor's mail app with the request written out. */
-function deliverByEmail(fields: Fields, photos: File[], t: RfqCopy) {
-  const aog = fields.aog === "yes";
-  const subject = [aog ? t.aogTag : "", t.subject, fields.partNumber, fields.company].filter(Boolean).join(" · ");
-  const lines = [
-    `${t.name}: ${fields.name}`,
-    `${t.company}: ${fields.company}`,
-    `${t.email}: ${fields.email}`,
-    `${t.phone}: ${fields.phone || "-"}`,
-    `${t.partNumber}: ${fields.partNumber || "-"}`,
-    `${t.serialNumber}: ${fields.serialNumber || "-"}`,
-    `${t.aircraft}: ${fields.aircraft || "-"}`,
-    `${t.aog} ${aog ? t.yes : t.no}`,
-    "",
-    `${t.damage}:`,
-    fields.damage,
-    "",
-    photos.length ? `${t.photos}: ${photos.map((f) => f.name).join(", ")}` : "",
-  ];
-  window.location.href = `mailto:${SITE.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join("\n"))}`;
+/** The email hand-off: open the visitor's mail app with the request written out. The
+    email is for FLG's repairs desk, so it is always in English (lib/rfqMailto.ts). */
+function deliverByEmail(fields: Fields, photos: File[], locale: Locale) {
+  window.location.href = buildRfqMailto(fields, photos.map((f) => f.name), locale, SITE.email).url;
 }
 
 type Sent = { via: "ezrp"; reference: string } | { via: "email" };
@@ -279,7 +253,7 @@ export default function RfqForm({ locale = "en" }: { locale?: Locale }) {
   }
 
   function byEmail() {
-    deliverByEmail(fields, photos, t);
+    deliverByEmail(fields, photos, locale);
     setSent({ via: "email" });
   }
 
